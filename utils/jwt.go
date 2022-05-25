@@ -19,7 +19,7 @@ JWT使用
 // 这里额外记录username字段，所以要自定义结构体
 // 如果想要保存更多信息，都可以添加到这个结构体中
 type MyClaims struct {
-	Username string `json:"username"`
+	ID int `json:"id"`
 	jwt.RegisteredClaims
 }
 
@@ -30,9 +30,9 @@ var MySecret = []byte(config.MySecret)
 生成 Token
 */
 
-func GenToken(username string) (string, error) {
+func GenToken(id int) (string, error) {
 	c := MyClaims{
-		Username: username,
+		ID: id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    config.Issuer,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.TokenExpirationTime)), // 过期时间2小时
