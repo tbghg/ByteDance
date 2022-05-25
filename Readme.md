@@ -56,6 +56,7 @@ ByteDance
 │
 └─utils		// 工具类层
     │  catchErr.go
+    │  jwt.go
     │  md5.go
     │
     └─generate	// gen，生成模型和CURD方法
