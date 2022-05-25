@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"ByteDance/config"
 	"ByteDance/pkg/msg"
 	"errors"
 	"fmt"
@@ -10,7 +11,7 @@ import (
 )
 
 /*
-	JWT使用
+JWT使用
 */
 
 // MyClaims 自定义声明结构体并内嵌jwt.StandardClaims
@@ -23,7 +24,7 @@ type MyClaims struct {
 }
 
 //密钥
-var MySecret = []byte(msg.MySecret)
+var MySecret = []byte(config.MySecret)
 
 /**
 生成 Token
@@ -33,10 +34,10 @@ func GenToken(username string) (string, error) {
 	c := MyClaims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    msg.Issuer,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(msg.TokenExpirationTime)), // 过期时间2小时
-			IssuedAt:  jwt.NewNumericDate(time.Now()),                              // 签发时间
-			NotBefore: jwt.NewNumericDate(time.Now()),                              // 生效时间
+			Issuer:    config.Issuer,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.TokenExpirationTime)), // 过期时间2小时
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                                 // 签发时间
+			NotBefore: jwt.NewNumericDate(time.Now()),                                 // 生效时间
 		}}
 
 	// 使用指定的签名方法创建签名对象

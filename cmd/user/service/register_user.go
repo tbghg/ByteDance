@@ -16,8 +16,12 @@ func RegUser(username string, password string) (regUserData *RegUserData, isExis
 	if !isExist {
 		id, err := repository.UserDao.CreateUser(username, password)
 		utils.CatchErr("CreateUser", err)
+		// jwt根据id生成token，略
+		token, err := utils.GenToken(username)
+		utils.CatchErr("tokenError", err)
 		regUserData = &RegUserData{
-			ID: id,
+			ID:    id,
+			Token: token,
 		}
 	}
 	return regUserData, isExist
