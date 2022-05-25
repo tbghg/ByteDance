@@ -4,6 +4,7 @@ import (
 	"ByteDance/cmd/user/service"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
+	"ByteDance/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -28,12 +29,14 @@ func RegisterUser(c *gin.Context) {
 		})
 	}
 	// jwt根据id生成token，略
+	token, err := utils.GenToken(username)
+	utils.CatchErr("tokenError", err)
 	c.JSON(http.StatusOK, RegData{
 		Response: common.Response{
 			StatusCode: 0,
 			StatusMsg:  msg.RegisterSuccessStatusMsg,
 		},
 		UserID: regUserData.ID,
-		Token:  "123", // jwt生成，中间数据感觉只传id就行，暂时不想写了，要挂科了
+		Token:  token, // jwt生成，中间数据感觉只传id就行，暂时不想写了，要挂科了
 	})
 }
