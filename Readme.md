@@ -10,7 +10,7 @@ ByteDance
 │  server.go	// 项目启动入口
 │
 ├─cmd
-│  └─user
+│  └─user       //user服务的业务代码
 │      ├─controller
 │      │      register_user.go
 │      │
