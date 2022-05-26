@@ -1,8 +1,8 @@
 package dal
 
 import (
-	"ByteDance/config"
 	"ByteDance/dal/query"
+	"ByteDance/pkg/common"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -12,6 +12,7 @@ import (
 var ConnQuery *query.Query
 var once sync.Once
 
+// 初始化，将ConnQuery与数据库绑定
 func init() {
 	once.Do(func() {
 		ConnQuery = getQueryConnection()
@@ -21,7 +22,7 @@ func init() {
 func getQueryConnection() *query.Query {
 	var err error
 	var db *gorm.DB
-	db, err = gorm.Open(mysql.Open(config.MySQLDSN))
+	db, err = gorm.Open(mysql.Open(common.MySqlDSN))
 	if err != nil {
 		panic(fmt.Errorf("cannot establish db connection: %w", err))
 	}

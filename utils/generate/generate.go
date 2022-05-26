@@ -1,13 +1,13 @@
 package main
 
 import (
-	"ByteDance/config"
+	"ByteDance/pkg/common"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
 	"gorm.io/gorm"
 )
 
-var db, _ = gorm.Open(mysql.Open(config.MySQLDSN))
+var db, _ = gorm.Open(mysql.Open(common.MySqlDSN))
 
 // generate code
 func main() {

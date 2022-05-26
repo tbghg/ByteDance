@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"ByteDance/config"
+	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"errors"
 	"fmt"
@@ -23,8 +23,8 @@ type MyClaims struct {
 	jwt.RegisteredClaims
 }
 
-//密钥
-var MySecret = []byte(config.MySecret)
+// MySecret 密钥
+var MySecret = []byte(common.MySecret)
 
 /**
 生成 Token
@@ -34,8 +34,8 @@ func GenToken(id int) (string, error) {
 	c := MyClaims{
 		ID: id,
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:    config.Issuer,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.TokenExpirationTime)), // 过期时间2小时
+			Issuer:    common.Issuer,
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(common.TokenExpirationTime)), // 过期时间2小时
 			IssuedAt:  jwt.NewNumericDate(time.Now()),                                 // 签发时间
 			NotBefore: jwt.NewNumericDate(time.Now()),                                 // 生效时间
 		}}
