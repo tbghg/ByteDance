@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ByteDance/cmd/user/controller"
+	userController "ByteDance/cmd/user/controller"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +12,8 @@ func initRouter(r *gin.Engine) {
 		// user路由组
 		user := GRoute.Group("/user")
 		{
-			user.POST("/register/", controller.RegisterUser)
+			user.POST("/register/", userController.RegisterUser)
+			user.POST("/login/", userController.LoginUser)
 		}
 
 	}

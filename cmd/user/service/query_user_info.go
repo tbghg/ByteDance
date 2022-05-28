@@ -32,9 +32,18 @@ func RegUser(username string, password string) (regUserData *RegUserData, isExis
 	return regUserData, isExist
 }
 
-func LoginUser(username string, password string) (loginData *LoginData, isCorrect bool) {
-	// 1. 传参传账号、密码，查询只查username，select 俩删除标识位、密码，判断是否删除\封禁，以及密码是否相等
-	// 2. 登录失败则直接返回isCorrect
-	// 3. 登陆成功就获取token，并返回
-	return loginData, isCorrect // 待完善
+func LoginUser(username string, password string) (*LoginData, bool) {
+	// 出于安全考虑未区分账号不存在、密码不正确的情况
+	id, isCorrect := repository.UserDao.CheckPassword(username, password)
+	if !isCorrect {
+		return nil, isCorrect
+	} else {
+		token, err := utils.GenToken(id)
+		utils.CatchErr("tokenError", err)
+		loginData := &LoginData{
+			ID:    id,
+			Token: token,
+		}
+		return loginData, isCorrect
+	}
 }

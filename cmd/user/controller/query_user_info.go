@@ -51,15 +51,7 @@ func LoginUser(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
 	loginData, isCorrect := service.LoginUser(username, password)
-	if !isCorrect {
-		// 账号或密码错误
-		c.JSON(http.StatusOK, loginResponse{
-			Response: common.Response{
-				StatusCode: -1,
-				StatusMsg:  msg.WrongUsernameOrPasswordMsg,
-			},
-		})
-	} else {
+	if isCorrect {
 		// 登陆成功
 		c.JSON(http.StatusOK, loginResponse{
 			Response: common.Response{
@@ -68,6 +60,14 @@ func LoginUser(c *gin.Context) {
 			},
 			UserID: loginData.ID,
 			Token:  loginData.Token,
+		})
+	} else {
+		// 账号或密码错误
+		c.JSON(http.StatusOK, loginResponse{
+			Response: common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.WrongUsernameOrPasswordMsg,
+			},
 		})
 	}
 }
