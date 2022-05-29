@@ -1,12 +1,22 @@
 package msg
 
-// AlreadyRegisteredStatusMsg 注册
-const AlreadyRegisteredStatusMsg = "该用户名已被注册"
-const RegisterSuccessStatusMsg = "注册成功"
+// 用户注册
+const (
+	AlreadyRegisteredStatusMsg = "该用户名已被注册"
+	RegisterSuccessStatusMsg   = "注册成功"
+)
 
-//jwt
-const TokenValidationErrorMalformed = "token 格式错误"
-const TokenValidationErrorExpired = "token 已经过期"
-const TokenValidationErrorNotValidYet = "token 尚未激活"
-const TokenValid = "无效 token"
-const TokenHandleFailed = "无法处理此Token"
+// 用户登录
+const (
+	WrongUsernameOrPasswordMsg = "用户名或密码错误"
+	LoginSuccessStatusMsg      = "登陆成功"
+)
+
+// JWT
+const (
+	TokenValidationErrorMalformed   = "token 格式错误"
+	TokenValidationErrorExpired     = "token 已经过期"
+	TokenValidationErrorNotValidYet = "token 尚未激活"
+	TokenValid                      = "无效 token"
+	TokenHandleFailed               = "无法处理此Token"
+)
