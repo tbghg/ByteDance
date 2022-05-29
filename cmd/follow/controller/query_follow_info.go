@@ -23,7 +23,7 @@ type RelationRequest struct {
 func RelationAction(c *gin.Context) {
 	userIdtStr := c.Query("user_id")
 	token := c.Query("token")
-	println(token)
+	println("token:" + token)
 	toUserIdStr := c.Query("to_user_id")
 	actionTypeStr := c.Query("action_type")
 
@@ -41,15 +41,14 @@ func RelationAction(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
 	}
 
-	err = service.RelationAction(userId, toUserId, int32(actionType))
+	err = service.RelationAction(int32(userId), int32(toUserId), int32(actionType))
 
 	if err != nil {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0}})
+	}
+	if actionType == 1 {
+		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
 	} else {
-		if actionType == 1 {
-			c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
-		}
-
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFollowSuccessMsg}})
 	}
 

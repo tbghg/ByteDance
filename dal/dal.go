@@ -3,7 +3,7 @@ package dal
 import (
 	"ByteDance/dal/query"
 	"ByteDance/pkg/common"
-	"fmt"
+	"ByteDance/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"sync"
@@ -24,7 +24,7 @@ func getQueryConnection() *query.Query {
 	var db *gorm.DB
 	db, err = gorm.Open(mysql.Open(common.MySqlDSN))
 	if err != nil {
-		panic(fmt.Errorf("cannot establish db connection: %w", err))
+		utils.CatchErr("数据库连接错误", err)
 	}
 	ConnQuery = query.Use(db)
 	return ConnQuery

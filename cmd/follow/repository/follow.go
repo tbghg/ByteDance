@@ -4,8 +4,6 @@ import (
 	"ByteDance/dal"
 	"ByteDance/dal/model"
 	"ByteDance/utils"
-	"errors"
-	"gorm.io/gorm"
 	"sync"
 )
 
@@ -28,24 +26,22 @@ func init() {
 	})
 }
 
-func (*FollowStruct) RelationUpdate(userId int64, toUserId int64, actionType int32) (isExist bool) {
+func (*FollowStruct) RelationUpdate(userId int32, toUserId int32, actionType int32) (RowsAffected int64) {
 	f := dal.ConnQuery.Follow
 
-	follow := &model.Follow{UserID: int32(userId), FunID: int32(toUserId), Removed: actionType}
+	follow := &model.Follow{UserID: userId, FunID: toUserId, Removed: actionType}
 
-	_, err := f.Where(f.UserID.Eq(follow.UserID), f.FunID.Eq(follow.FunID)).Update(f.Removed, follow.Removed)
+	row, err := f.Where(f.UserID.Eq(follow.UserID), f.FunID.Eq(follow.FunID)).Update(f.Removed, follow.Removed)
 
 	utils.CatchErr("更新错误", err)
 
-	isExist = !errors.Is(err, gorm.ErrRecordNotFound)
-
-	return isExist
+	return row.RowsAffected
 }
 
-func (*FollowStruct) RelationCreate(userId int64, toUserId int64) (err error) {
+func (*FollowStruct) RelationCreate(userId int32, toUserId int32) (err error) {
 	f := dal.ConnQuery.Follow
 
-	follow := &model.Follow{UserID: int32(userId), FunID: int32(toUserId)}
+	follow := &model.Follow{UserID: userId, FunID: toUserId}
 
 	err = f.Create(follow)
 
