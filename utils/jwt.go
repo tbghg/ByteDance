@@ -79,11 +79,11 @@ func ParseToken(tokenStr string) (*MyClaims, error) {
 */
 func main() {
 
-	//tokenStr, _ := GenToken("徐先生")
-	//fmt.Println("token:", tokenStr)
-	claim, err := ParseToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IuW-kOWFiOeUnyIsImlzcyI6InhoeCIsImV4cCI6MTY1MzQ0OTc3MiwibmJmIjoxNjUzNDQ5NzcxLCJpYXQiOjE2NTM0NDk3NzF9.xjuR-Z39M_f_NqWRTtGjRtPBCwxS7JeaqQyDmnF7om8")
-	CatchErr("错误", err)
-	fmt.Printf("解析后：%#v\n", claim.ExpiresAt)
+	tokenStr, _ := GenToken(1)
+	fmt.Println("token:", tokenStr)
+	//claim, err := ParseToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IuW-kOWFiOeUnyIsImlzcyI6InhoeCIsImV4cCI6MTY1MzQ0OTc3MiwibmJmIjoxNjUzNDQ5NzcxLCJpYXQiOjE2NTM0NDk3NzF9.xjuR-Z39M_f_NqWRTtGjRtPBCwxS7JeaqQyDmnF7om8")
+	//CatchErr("错误", err)
+	//fmt.Printf("解析后：%#v\n", claim.ExpiresAt)
 	//tokenStr2, err := RefreshToken(tokenStr)
 	//
 	//CatchErr("错误",err)
