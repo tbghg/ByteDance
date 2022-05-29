@@ -44,7 +44,7 @@ func RelationAction(c *gin.Context) {
 	err = service.RelationAction(int32(userId), int32(toUserId), int32(actionType))
 
 	if err != nil {
-		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0}})
+		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1}})
 	}
 	if actionType == 1 {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
