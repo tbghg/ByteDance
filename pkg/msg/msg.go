@@ -20,3 +20,10 @@ const (
 	TokenValid                      = "无效 token"
 	TokenHandleFailed               = "无法处理此Token"
 )
+
+//Follow
+const (
+	DataFormatErrorMsg = "数据格式错误"
+	FollowSuccessMsg   = "关注成功"
+	UnFollowSuccessMsg = "取消关注成功"
+)

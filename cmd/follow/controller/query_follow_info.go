@@ -3,6 +3,7 @@ package controller
 import (
 	"ByteDance/cmd/follow/service"
 	"ByteDance/pkg/common"
+	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -28,16 +29,16 @@ func RelationAction(c *gin.Context) {
 
 	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "数据格式错误"}})
+		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
 	}
 	toUserId, err := strconv.ParseInt(toUserIdStr, 10, 64)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "数据格式错误"}})
+		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
 	}
 	actionType, err := strconv.ParseInt(actionTypeStr, 10, 64)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "数据格式错误"}})
+		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
 	}
 
 	err = service.RelationAction(userId, toUserId, int32(actionType))
@@ -46,10 +47,10 @@ func RelationAction(c *gin.Context) {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0}})
 	} else {
 		if actionType == 1 {
-			c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "关注成功"}})
+			c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
 		}
 
-		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "取消关注成功"}})
+		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFollowSuccessMsg}})
 	}
 
 }
