@@ -1,6 +1,7 @@
 package main
 
 import (
+	relationController "ByteDance/cmd/follow/controller"
 	userController "ByteDance/cmd/user/controller"
 	"github.com/gin-gonic/gin"
 )
@@ -14,6 +15,11 @@ func initRouter(r *gin.Engine) {
 		{
 			user.POST("/register/", userController.RegisterUser)
 			user.POST("/login/", userController.LoginUser)
+		}
+		//follow路由组
+		relation := GRoute.Group("relation")
+		{
+			relation.POST("/action/", relationController.RelationAction)
 		}
 
 	}
