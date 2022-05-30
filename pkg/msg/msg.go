@@ -27,3 +27,9 @@ const (
 	FollowSuccessMsg   = "关注成功"
 	UnFollowSuccessMsg = "取消关注成功"
 )
+
+//favorite
+const (
+	FavoriteSuccessMsg   = "点赞成功"
+	UnFavoriteSuccessMsg = "取消点赞成功"
+)

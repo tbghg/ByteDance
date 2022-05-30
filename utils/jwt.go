@@ -3,10 +3,10 @@ package utils
 import (
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
-	"errors"
 	"fmt"
-
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"net/http"
 	"time"
 )
 
@@ -46,33 +46,74 @@ func GenToken(id int) (string, error) {
 	return token.SignedString(MySecret)
 }
 
-/**
-解析 Token
+/* JwtMiddleware jwt中间件
+使用方法：路由组最后use(utils.JwtMiddleware 参考favorite路由组)
 */
-func ParseToken(tokenStr string) (*MyClaims, error) {
-
-	token, err := jwt.ParseWithClaims(tokenStr, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return MySecret, nil
-	})
-	if err != nil {
-		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				return nil, errors.New(msg.TokenValidationErrorMalformed)
-			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				return nil, errors.New(msg.TokenValidationErrorExpired)
-			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				return nil, errors.New(msg.TokenValidationErrorNotValidYet)
-			} else {
-				return nil, errors.New(msg.TokenHandleFailed)
+func JwtMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//从请求头中获取token
+		tokenStr := c.Query("token")
+		token, err := jwt.ParseWithClaims(tokenStr, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+			return MySecret, nil
+		})
+		if err != nil {
+			if ve, ok := err.(*jwt.ValidationError); ok {
+				if ve.Errors&jwt.ValidationErrorMalformed != 0 { //token格式错误
+					c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenValidationErrorMalformed})
+					c.Abort() //阻止执行
+					return
+				} else if ve.Errors&jwt.ValidationErrorExpired != 0 { //token过期
+					c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenValidationErrorExpired})
+					c.Abort() //阻止执行
+					return
+				} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 { //token未激活
+					c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenValidationErrorNotValidYet})
+					c.Abort() //阻止执行
+					return
+				} else {
+					c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenHandleFailed})
+					c.Abort() //阻止执行
+					return
+				}
 			}
 		}
+
+		if _, ok := token.Claims.(*MyClaims); ok && token.Valid {
+			c.Next()
+			return
+		}
+		//失效的token
+		c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenValid})
+		c.Abort() //阻止执行
+		return
 	}
-	if claims, ok := token.Claims.(*MyClaims); ok && token.Valid {
-		return claims, nil
-	}
-	//失效的token
-	return nil, errors.New(msg.TokenValid)
 }
+
+//func ParseToken(tokenStr string) (*MyClaims, error) {
+
+//token, err := jwt.ParseWithClaims(tokenStr, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
+//	return MySecret, nil
+//})
+//if err != nil {
+//	if ve, ok := err.(*jwt.ValidationError); ok {
+//		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
+//			return nil, errors.New(msg.TokenValidationErrorMalformed)
+//		} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
+//			return nil, errors.New(msg.TokenValidationErrorExpired)
+//		} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
+//			return nil, errors.New(msg.TokenValidationErrorNotValidYet)
+//		} else {
+//			return nil, errors.New(msg.TokenHandleFailed)
+//		}
+//	}
+//}
+//
+//if claims, ok := token.Claims.(*MyClaims); ok && token.Valid {
+//	return claims, nil
+//}
+////失效的token
+//return nil, errors.New(msg.TokenValid)
+//}
 
 /**
 测试
