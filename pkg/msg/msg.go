@@ -10,6 +10,7 @@ const (
 const (
 	WrongUsernameOrPasswordMsg = "用户名或密码错误"
 	LoginSuccessStatusMsg      = "登陆成功"
+	AccountBlocked             = "账号已被冻结"
 )
 
 // JWT
