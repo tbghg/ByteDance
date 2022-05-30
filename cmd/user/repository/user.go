@@ -45,18 +45,26 @@ func (*UserDaoStruct) CreateUser(username string, password string) (int, error) 
 	return int(user.ID), err
 }
 
-func (*UserDaoStruct) CheckPassword(username string, password string) (int, bool) {
+func (*UserDaoStruct) CheckPassword(username string, password string) (id int, state int) {
 	u := dal.ConnQuery.User
 	user, err := u.Where(u.Username.Eq(username)).Take()
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		// 未查询到相关法记录，即不存在该账号
-		return int(user.ID), false
-	}
-	if user.Deleted == 0 && user.Enable == 1 && utils.Md5(password) == user.Password {
-		// 密码正确，且账号可以正常使用
-		return int(user.ID), true
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// 查询到存在相关记录
+		if user.Deleted == 0 && utils.Md5(password) == user.Password {
+			// 密码正确
+			if user.Enable == 1 {
+				// 账号可以使用
+				state = 1
+				id = int(user.ID)
+			} else {
+				// 账号无法使用
+				state = -1
+			}
+		}
 	} else {
-		// 密码不正确，或账号被封禁
-		return int(user.ID), false
+		// 不存在相关记录，检查err是否为空，不为空说明出现错误
+		utils.CatchErr("登录查询错误", err)
 	}
+	// 账号密码错误时id、state默认初始值为0
+	return id, state
 }

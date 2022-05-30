@@ -26,7 +26,6 @@ func RegisterUser(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
 	regUserData, isExist := service.RegUser(username, password)
-
 	if isExist {
 		c.JSON(http.StatusOK, regUserResponse{
 			Response: common.Response{
@@ -51,8 +50,9 @@ func RegisterUser(c *gin.Context) {
 func LoginUser(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
-	loginData, isCorrect := service.LoginUser(username, password)
-	if isCorrect {
+	// state 1:登陆成功 0:账号或密码错误 -1:账号已被冻结
+	loginData, state := service.LoginUser(username, password)
+	if state == 1 {
 		// 登陆成功
 		c.JSON(http.StatusOK, loginResponse{
 			Response: common.Response{
@@ -64,12 +64,20 @@ func LoginUser(c *gin.Context) {
 				Token: loginData.Token,
 			},
 		})
-	} else {
+	} else if state == 0 {
 		// 账号或密码错误
 		c.JSON(http.StatusOK, loginResponse{
 			Response: common.Response{
 				StatusCode: -1,
 				StatusMsg:  msg.WrongUsernameOrPasswordMsg,
+			},
+		})
+	} else if state == -1 {
+		// 账号已被冻结
+		c.JSON(http.StatusOK, loginResponse{
+			Response: common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.AccountBlocked,
 			},
 		})
 	}

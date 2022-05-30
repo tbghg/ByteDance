@@ -22,18 +22,18 @@ func RegUser(username string, password string) (regUserData *user.RegUserData, i
 	return regUserData, isExist
 }
 
-func LoginUser(username string, password string) (*user.LoginData, bool) {
+func LoginUser(username string, password string) (loginData *user.LoginData, state int) {
 	// 出于安全考虑未区分账号不存在、密码不正确的情况
-	id, isCorrect := repository.UserDao.CheckPassword(username, password)
-	if !isCorrect {
-		return nil, isCorrect
-	} else {
+	var id int
+	id, state = repository.UserDao.CheckPassword(username, password)
+	if state == 1 {
+		// 登录成功，创建loginData、计算token
 		token, err := utils.GenToken(id)
 		utils.CatchErr("tokenError", err)
-		loginData := &user.LoginData{
+		loginData = &user.LoginData{
 			ID:    id,
 			Token: token,
 		}
-		return loginData, isCorrect
 	}
+	return loginData, state
 }
