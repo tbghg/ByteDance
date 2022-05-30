@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-/*
+/**
 JWT使用
 */
 
@@ -26,10 +26,7 @@ type MyClaims struct {
 // MySecret 密钥
 var MySecret = []byte(common.MySecret)
 
-/**
-生成 Token
-*/
-
+// GenToken 生成 Token
 func GenToken(id int) (string, error) {
 	c := MyClaims{
 		ID: id,
@@ -46,9 +43,7 @@ func GenToken(id int) (string, error) {
 	return token.SignedString(MySecret)
 }
 
-/**
-解析 Token
-*/
+// ParseToken 解析 Token
 func ParseToken(tokenStr string) (*MyClaims, error) {
 
 	token, err := jwt.ParseWithClaims(tokenStr, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
