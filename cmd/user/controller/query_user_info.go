@@ -41,18 +41,18 @@ func RegisterUser(c *gin.Context) {
 				StatusMsg:  msg.AlreadyRegisteredStatusMsg,
 			},
 		})
+	} else {
+		c.JSON(http.StatusOK, regUserResponse{
+			Response: common.Response{
+				StatusCode: 0,
+				StatusMsg:  msg.RegisterSuccessStatusMsg,
+			},
+			RegUserData: user.RegUserData{
+				ID:    regUserData.ID,
+				Token: regUserData.Token,
+			},
+		})
 	}
-
-	c.JSON(http.StatusOK, regUserResponse{
-		Response: common.Response{
-			StatusCode: 0,
-			StatusMsg:  msg.RegisterSuccessStatusMsg,
-		},
-		RegUserData: user.RegUserData{
-			ID:    regUserData.ID,
-			Token: regUserData.Token,
-		},
-	})
 }
 
 func LoginUser(c *gin.Context) {
@@ -97,6 +97,7 @@ func GetUserInfo(c *gin.Context) {
 	userID, err := strconv.ParseInt(userIDStr, 10, 32)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, getUserInfoResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+		return
 	}
 
 	fmt.Println(token) // token 暂时不管了，等中间件了
