@@ -15,6 +15,7 @@ func initRouter(r *gin.Engine) {
 		{
 			user.POST("/register/", userController.RegisterUser)
 			user.POST("/login/", userController.LoginUser)
+			user.GET("/", userController.GetUserInfo)
 		}
 		//follow路由组
 		relation := GRoute.Group("relation")

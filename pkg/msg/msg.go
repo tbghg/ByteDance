@@ -13,6 +13,13 @@ const (
 	AccountBlocked             = "账号已被冻结"
 )
 
+// 获取用户信息
+const (
+	UserIDNotExistMsg = "该用户ID不存在"
+	GetFailedMsg      = "获取失败"
+	GetSuccessMsg     = "获取用户信息成功"
+)
+
 // JWT
 const (
 	TokenValidationErrorMalformed   = "token 格式错误"
@@ -24,7 +31,11 @@ const (
 
 //Follow
 const (
-	DataFormatErrorMsg = "数据格式错误"
 	FollowSuccessMsg   = "关注成功"
 	UnFollowSuccessMsg = "取消关注成功"
+)
+
+// Common
+const (
+	DataFormatErrorMsg = "数据格式错误"
 )

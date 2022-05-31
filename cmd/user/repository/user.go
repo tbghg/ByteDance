@@ -7,6 +7,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"sync"
+	"time"
 )
 
 // User 数据库查询完毕后将查询结构放在此处
@@ -56,6 +57,8 @@ func (*UserDaoStruct) CheckPassword(username string, password string) (id int, s
 				// 账号可以使用
 				state = 1
 				id = int(user.ID)
+				_, updateErr := u.Where(u.ID.Eq(user.ID)).Update(u.LoginTime, time.Now().Format("2006-01-02 15:04:05"))
+				utils.CatchErr("登录时间更新", updateErr)
 			} else {
 				// 账号无法使用
 				state = -1
@@ -67,4 +70,35 @@ func (*UserDaoStruct) CheckPassword(username string, password string) (id int, s
 	}
 	// 账号密码错误时id、state默认初始值为0
 	return id, state
+}
+
+func (*UserDaoStruct) QueryUsernameByID(userID int32) (username string, isExist bool) {
+	u := dal.ConnQuery.User
+	user, err := u.Select(u.Username).Where(u.ID.Eq(userID)).Take()
+	isExist = !errors.Is(err, gorm.ErrRecordNotFound)
+	if isExist == false {
+		return "", isExist
+	} else {
+		return user.Username, isExist
+	}
+}
+
+func (*UserDaoStruct) QueryFollowCount(userID int32) (followerCount int64, followCount int64, success bool) {
+	// follower_count 粉丝数	follow_count 关注数
+	var err error
+	f := dal.ConnQuery.Follow
+
+	followerCount, err = f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userID)).Count()
+	utils.CatchErr("查询粉丝数错误", err)
+	if err != nil {
+		return 0, 0, false
+	}
+
+	followCount, err = f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.FunID.Eq(userID)).Count()
+	utils.CatchErr("查询关注数错误", err)
+	if err != nil {
+		return 0, 0, false
+	}
+
+	return followerCount, followCount, true
 }
