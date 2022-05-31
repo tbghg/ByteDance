@@ -37,3 +37,28 @@ func LoginUser(username string, password string) (loginData *user.LoginData, sta
 	}
 	return loginData, state
 }
+
+func GetUserInfo(userID int32) (userInfoData *user.GetUserInfoData, state int) {
+	// state 0:userID不存在  1:查询成功  -1:查询失败
+	// 分两段，第一部分查询用户名，第二部分count粉丝数、关注数
+	username, isExist := repository.UserDao.QueryUsernameByID(userID)
+	if !isExist {
+		// userID 不存在相关记录
+		return nil, 0
+	}
+	// 查询粉丝数、关注数
+	followCount, followerCount, success := repository.UserDao.QueryFollowCount(userID)
+	if !success {
+		state = -1
+	} else {
+		state = 1
+		userInfoData = &user.GetUserInfoData{
+			ID:            userID,
+			UseName:       username,
+			FollowCount:   followCount,
+			FollowerCount: followerCount,
+			IsFollow:      false,
+		}
+	}
+	return userInfoData, state
+}

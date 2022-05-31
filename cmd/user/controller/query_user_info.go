@@ -5,8 +5,10 @@ import (
 	"ByteDance/cmd/user/service"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // 用户登录返回值
@@ -21,6 +23,12 @@ type regUserResponse struct {
 	user.RegUserData
 }
 
+// 获取用户信息
+type getUserInfoResponse struct {
+	common.Response
+	User user.GetUserInfoData `json:"user"`
+}
+
 // RegisterUser 注册用户
 func RegisterUser(c *gin.Context) {
 	username := c.Query("username")
@@ -33,18 +41,18 @@ func RegisterUser(c *gin.Context) {
 				StatusMsg:  msg.AlreadyRegisteredStatusMsg,
 			},
 		})
+	} else {
+		c.JSON(http.StatusOK, regUserResponse{
+			Response: common.Response{
+				StatusCode: 0,
+				StatusMsg:  msg.RegisterSuccessStatusMsg,
+			},
+			RegUserData: user.RegUserData{
+				ID:    regUserData.ID,
+				Token: regUserData.Token,
+			},
+		})
 	}
-
-	c.JSON(http.StatusOK, regUserResponse{
-		Response: common.Response{
-			StatusCode: 0,
-			StatusMsg:  msg.RegisterSuccessStatusMsg,
-		},
-		RegUserData: user.RegUserData{
-			ID:    regUserData.ID,
-			Token: regUserData.Token,
-		},
-	})
 }
 
 func LoginUser(c *gin.Context) {
@@ -80,5 +88,45 @@ func LoginUser(c *gin.Context) {
 				StatusMsg:  msg.AccountBlocked,
 			},
 		})
+	}
+}
+
+func GetUserInfo(c *gin.Context) {
+	userIDStr := c.Query("user_id")
+	token := c.Query("token")
+	userID, err := strconv.ParseInt(userIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, getUserInfoResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+		return
+	}
+
+	fmt.Println(token) // token 暂时不管了，等中间件了
+
+	// 根据userID查询用户名 获取关注数、粉丝数
+	userInfoData, state := service.GetUserInfo(int32(userID))
+	// state 0:userID不存在  1:查询成功  -1:查询失败
+	if state == 0 {
+		c.JSON(http.StatusOK, &getUserInfoResponse{
+			Response: common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.UserIDNotExistMsg,
+			},
+		})
+	} else if state == -1 {
+		c.JSON(http.StatusOK, &getUserInfoResponse{
+			Response: common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.GetFailedMsg,
+			},
+		})
+	} else {
+		c.JSON(http.StatusOK,
+			&getUserInfoResponse{
+				Response: common.Response{
+					StatusCode: 0,
+					StatusMsg:  msg.GetSuccessMsg,
+				},
+				User: *userInfoData,
+			})
 	}
 }
