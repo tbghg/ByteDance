@@ -13,13 +13,6 @@ type RelationActionResponse struct {
 	common.Response
 }
 
-type RelationRequest struct {
-	UserId     int64
-	Token      string
-	ToUserId   int64
-	ActionType int32
-}
-
 func RelationAction(c *gin.Context) {
 	userIdtStr := c.Query("user_id")
 	token := c.Query("token")
@@ -30,21 +23,25 @@ func RelationAction(c *gin.Context) {
 	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
+		return
 	}
 	toUserId, err := strconv.ParseInt(toUserIdStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
+		return
 	}
 	actionType, err := strconv.ParseInt(actionTypeStr, 10, 64)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
+		return
 	}
 
 	err = service.RelationAction(int32(userId), int32(toUserId), int32(actionType))
 
 	if err != nil {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1}})
+		return
 	}
 	if actionType == 1 {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
