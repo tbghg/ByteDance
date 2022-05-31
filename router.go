@@ -1,8 +1,11 @@
 package main
 
 import (
+	favoriteController "ByteDance/cmd/favorite/controller"
 	relationController "ByteDance/cmd/follow/controller"
 	userController "ByteDance/cmd/user/controller"
+	"ByteDance/utils"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,6 +24,13 @@ func initRouter(r *gin.Engine) {
 		relation := GRoute.Group("relation")
 		{
 			relation.POST("/action/", relationController.RelationAction)
+		}
+		//favorite路由组
+		favorite := GRoute.Group("/favorite").Use(utils.JwtMiddleware())
+		{
+
+			favorite.POST("/action/", favoriteController.FavoriteAction)
+			favorite.GET("/list/", favoriteController.FavoriteList)
 		}
 
 	}
