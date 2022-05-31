@@ -47,7 +47,13 @@ const (
 	UnFavoriteSuccessMsg = "取消点赞成功"
 )
 
-//Common
+//common
+const (
+	CommonSuccessMsg   = "评论成功"
+	UnCommonSuccessMsg = "取消评论成功"
+)
+
+//common
 const (
 	DataFormatErrorMsg = "数据格式错误"
 )

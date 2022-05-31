@@ -1,6 +1,11 @@
 package common
 
-import "time"
+import (
+	"github.com/go-playground/locales/zh"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	"time"
+)
 
 // Response 响应共有响应头
 type Response struct {
@@ -18,6 +23,13 @@ const (
 	Issuer              = "xhx" // 签发人
 	MySecret            = "Fy3Jfa5AD"
 	TokenExpirationTime = 2 * time.Hour * time.Duration(1) // Token过期时间
+)
+
+var (
+	Validate = validator.New()          // 实例化验证器
+	Chinese  = zh.New()                 // 获取中文翻译器
+	Uni      = ut.New(Chinese, Chinese) // 设置成中文翻译器
+	Trans, _ = Uni.GetTranslator("zh")  // 获取翻译字典
 )
 
 // OSSPreURL OSS前缀
