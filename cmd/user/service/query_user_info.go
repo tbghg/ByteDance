@@ -3,6 +3,7 @@ package service
 import (
 	"ByteDance/cmd/user"
 	"ByteDance/cmd/user/repository"
+	"ByteDance/dal/method"
 	"ByteDance/utils"
 )
 
@@ -47,7 +48,7 @@ func GetUserInfo(userID int32) (userInfoData *user.GetUserInfoData, state int) {
 		return nil, 0
 	}
 	// 查询粉丝数、关注数
-	followCount, followerCount, success := repository.UserDao.QueryFollowCount(userID)
+	followCount, followerCount, success := method.QueryFollowCount(userID)
 	if !success {
 		state = -1
 	} else {

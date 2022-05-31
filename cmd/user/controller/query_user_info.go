@@ -116,7 +116,7 @@ func GetUserInfo(c *gin.Context) {
 		c.JSON(http.StatusOK, &getUserInfoResponse{
 			Response: common.Response{
 				StatusCode: -1,
-				StatusMsg:  msg.GetFailedMsg,
+				StatusMsg:  msg.GetUserInfoFailedMsg,
 			},
 		})
 	} else {
@@ -124,7 +124,7 @@ func GetUserInfo(c *gin.Context) {
 			&getUserInfoResponse{
 				Response: common.Response{
 					StatusCode: 0,
-					StatusMsg:  msg.GetSuccessMsg,
+					StatusMsg:  msg.GetUserInfoSuccessMsg,
 				},
 				User: *userInfoData,
 			})
