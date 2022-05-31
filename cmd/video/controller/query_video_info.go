@@ -2,8 +2,11 @@ package controller
 
 import (
 	"ByteDance/cmd/video"
+	"ByteDance/cmd/video/service"
 	"ByteDance/pkg/common"
+	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -11,8 +14,8 @@ import (
 // 获取视频返回值
 type getVideoResponse struct {
 	common.Response
-	NextTime  int64           `json:"next_time"`
-	VideoList [10]video.Video `json:"video_list"`
+	NextTime  int64                `json:"next_time"`
+	VideoList []video.TheVideoInfo `json:"video_list"`
 }
 
 // 显示视频的接口
@@ -27,5 +30,21 @@ func GetVideoFeed(c *gin.Context) {
 		lastTime = time.Now().Unix()
 	}
 	// 需要获取NextTime、VideoList
-
+	nextTime, videoInfo, state := service.GetVideoFeed(lastTime)
+	if state == 0 {
+		c.JSON(http.StatusOK, &getVideoResponse{
+			Response: common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.HasNoVideoMsg,
+			}, NextTime: lastTime,
+		})
+	} else if state == 1 {
+		c.JSON(http.StatusOK, &getVideoResponse{
+			Response: common.Response{
+				StatusCode: 0,
+				StatusMsg:  msg.GetVideoInfoSuccessMsg,
+			}, NextTime: nextTime,
+			VideoList: videoInfo,
+		})
+	}
 }

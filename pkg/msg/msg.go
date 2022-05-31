@@ -15,9 +15,15 @@ const (
 
 // 获取用户信息
 const (
-	UserIDNotExistMsg = "用户ID不存在"
-	GetFailedMsg      = "获取用户信息失败"
-	GetSuccessMsg     = "获取用户信息成功"
+	UserIDNotExistMsg     = "用户ID不存在"
+	GetUserInfoFailedMsg  = "获取用户信息失败"
+	GetUserInfoSuccessMsg = "获取用户信息成功"
+)
+
+// video
+const (
+	HasNoVideoMsg          = "已经没有视频了"
+	GetVideoInfoSuccessMsg = "获取视频信息成功"
 )
 
 // JWT
@@ -41,7 +47,7 @@ const (
 	UnFavoriteSuccessMsg = "取消点赞成功"
 )
 
-//common
+//Common
 const (
 	DataFormatErrorMsg = "数据格式错误"
 )

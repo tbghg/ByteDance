@@ -4,6 +4,7 @@ import (
 	favoriteController "ByteDance/cmd/favorite/controller"
 	relationController "ByteDance/cmd/follow/controller"
 	userController "ByteDance/cmd/user/controller"
+	videoController "ByteDance/cmd/video/controller"
 	"ByteDance/utils"
 
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,7 @@ func initRouter(r *gin.Engine) {
 			favorite.POST("/action/", favoriteController.FavoriteAction)
 			favorite.GET("/list/", favoriteController.FavoriteList)
 		}
-
+		// 视频流接口
+		GRoute.GET("/feed/", videoController.GetVideoFeed)
 	}
 }
