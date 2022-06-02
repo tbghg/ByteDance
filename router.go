@@ -28,6 +28,7 @@ func initRouter(r *gin.Engine) {
 		relation := GRoute.Group("relation")
 		{
 			relation.POST("/action/", relationController.RelationAction)
+			relation.GET("/follow/list/", relationController.FollowList)
 		}
 		//favorite路由组
 		favorite := GRoute.Group("/favorite").Use(middleware.JwtMiddleware())

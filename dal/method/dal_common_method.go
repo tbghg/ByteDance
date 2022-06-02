@@ -2,6 +2,7 @@ package method
 
 import (
 	"ByteDance/dal"
+	"ByteDance/dal/model"
 	"ByteDance/utils"
 )
 
@@ -37,4 +38,10 @@ func QueryFavoriteCount(videoID int32) int64 {
 	favoriteCount, err := f.Select(f.VideoID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.VideoID.Eq(videoID)).Count()
 	utils.CatchErr("查询点赞数错误", err)
 	return favoriteCount
+}
+
+func QueryUserById(userId int32) (user *model.User) {
+	u := dal.ConnQuery.User
+	user, _ = u.Where(u.ID.Eq(userId)).First()
+	return user
 }
