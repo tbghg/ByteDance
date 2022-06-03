@@ -22,6 +22,7 @@ func GetVideoFeed(lastTime int64) (nextTime int64, videoInfo []video.TheVideoInf
 
 	nextTime = allVideoInfoData[len(allVideoInfoData)-1].Time.Unix()
 	videoInfo = make([]video.TheVideoInfo, len(allVideoInfoData))
+
 	for index, videoInfoData := range allVideoInfoData {
 		followerCount, followCount, _ := method.QueryFollowCount(videoInfoData.UserID)
 		commentCount := method.QueryCommentCountByVideoID(videoInfoData.VideoID)
