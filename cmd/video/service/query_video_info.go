@@ -5,6 +5,10 @@ import (
 	"ByteDance/cmd/video/repository"
 	"ByteDance/dal/method"
 	"ByteDance/pkg/common"
+	"ByteDance/utils"
+	"bytes"
+	"fmt"
+	"os/exec"
 	"time"
 )
 
@@ -37,8 +41,8 @@ func GetVideoFeed(lastTime int64) (nextTime int64, videoInfo []video.TheVideoInf
 				FollowerCount: int(followerCount),
 				IsFollow:      false,
 			},
-			PlayURL:       common.OSSPreURL + videoInfoData.PlayURL,
-			CoverURL:      common.OSSPreURL + videoInfoData.CoverURL,
+			PlayURL:       common.OSSPreURL + videoInfoData.PlayURL + ".mp4",
+			CoverURL:      common.OSSPreURL + videoInfoData.CoverURL + ".jpg",
 			FavoriteCount: int(favoriteCount),
 			CommentCount:  int(commentCount),
 			IsFavorite:    false,
@@ -47,4 +51,35 @@ func GetVideoFeed(lastTime int64) (nextTime int64, videoInfo []video.TheVideoInf
 	}
 
 	return nextTime, videoInfo, 1
+}
+
+func PublishVideo(userID int, title string, fileBytes []byte) bool {
+	node, _ := utils.NewWorker(1)
+	randomId := node.GetId()
+	fileID := fmt.Sprintf("%v", randomId)
+
+	if !utils.UploadFile(fileBytes, fileID, "video") {
+		return false
+	}
+	// 通过ffmpeg截取视频第一帧为视频封面
+	videoURL := common.OSSPreURL + fileID + ".mp4"
+	cmd := exec.Command("ffmpeg", "-i", videoURL, "-vframes", "1", "-f", "singlejpeg", "-")
+	buf := new(bytes.Buffer)
+	cmd.Stdout = buf
+	err := cmd.Run()
+	if !utils.CatchErr("ffmpeg运行错误", err) {
+		return false
+	}
+	// 将视频封面上传至OSS中
+	if !utils.UploadFile(buf.Bytes(), fileID, "picture") {
+		return false
+	}
+	// 存入数据库中
+	success := repository.VideoDao.PublishVideo(userID, title, fileID)
+	if success {
+		return true
+	} else {
+		return false
+	}
+
 }

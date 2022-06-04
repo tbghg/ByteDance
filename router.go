@@ -31,15 +31,21 @@ func initRouter(r *gin.Engine) {
 			relation.GET("/follow/list/", relationController.FollowList)
 		}
 		//favorite路由组
-		favorite := GRoute.Group("/favorite").Use(middleware.JwtMiddleware())
+		favorite := GRoute.Group("/favorite").Use(middleware.JwtMiddleware("query"))
 		{
 			favorite.POST("/action/", favoriteController.FavoriteAction)
 			favorite.GET("/list/", favoriteController.FavoriteList)
 		}
 		// 视频流接口
 		GRoute.GET("/feed/", videoController.GetVideoFeed)
+		//publish路由组
+		publish := GRoute.Group("/publish")
+		{
+			publish.POST("/action/", middleware.JwtMiddleware("form-data"), videoController.PublishVideo)
+			//publish.GET("/list/", middleware.JwtMiddleware("query"),)
+		}
 		//comment路由组
-		comment := GRoute.Group("/comment").Use(middleware.JwtMiddleware())
+		comment := GRoute.Group("/comment").Use(middleware.JwtMiddleware("query"))
 		{
 
 			comment.POST("/action/", commentController.CommentAction)
