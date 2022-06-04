@@ -24,6 +24,8 @@ const (
 const (
 	HasNoVideoMsg          = "已经没有视频了"
 	GetVideoInfoSuccessMsg = "获取视频信息成功"
+	PublishVideoFailedMsg  = "上传视频失败"
+	PublishVideoSuccessMsg = "上传视频成功"
 )
 
 // JWT
@@ -33,6 +35,7 @@ const (
 	TokenValidationErrorNotValidYet = "token 尚未激活"
 	TokenValid                      = "无效 token"
 	TokenHandleFailed               = "无法处理此Token"
+	TokenParameterAcquisitionError  = "token参数获取错误"
 )
 
 //Follow
@@ -45,14 +48,15 @@ const (
 
 //favorite
 const (
-	FavoriteSuccessMsg   = "点赞成功"
-	UnFavoriteSuccessMsg = "取消点赞成功"
+	FavoriteSuccessMsg       = "点赞成功"
+	CancelFavoriteSuccessMsg = "取消点赞成功"
+	OperationFailedMsg       = "操作失败"
 )
 
-//common
+//comment
 const (
-	CommonSuccessMsg   = "评论成功"
-	UnCommonSuccessMsg = "取消评论成功"
+	CommentSuccessMsg       = "评论成功"
+	CancelCommentSuccessMsg = "取消评论成功"
 )
 
 //common
