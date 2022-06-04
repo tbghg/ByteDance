@@ -13,7 +13,7 @@ type FavoriteActionResponse struct {
 	common.Response
 }
 
-//点赞与取消请求
+// FavoriteActionRequest 点赞与取消请求
 type FavoriteActionRequest struct {
 	UserId     int64  `form:"user_id" validate:"required,numeric"`
 	Token      string `form:"token" validate:"required"`
@@ -21,13 +21,13 @@ type FavoriteActionRequest struct {
 	ActionType int32  `form:"action_type" validate:"required,numeric"`
 }
 
-//点赞列表请求
+// FavoriteListRequest 点赞列表请求
 type FavoriteListRequest struct {
 	UserId int64  `form:"user_id" validate:"required,numeric"`
 	Token  string `form:"token" validate:"required"`
 }
 
-//点赞操作
+// FavoriteAction 点赞操作
 func FavoriteAction(c *gin.Context) {
 	var r FavoriteActionRequest
 	// 接收参数并绑定
@@ -66,21 +66,21 @@ func FavoriteAction(c *gin.Context) {
 	//	return
 	//}
 
-	err = service.RelationAction(int32(r.UserId), int32(r.VideoId), int32(r.ActionType))
+	err = service.RelationAction(int32(r.UserId), int32(r.VideoId), r.ActionType)
 
 	if err != nil {
-		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1}})
+		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.OperationFailedMsg}})
 		return
 	}
 	if r.ActionType == 1 {
 		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FavoriteSuccessMsg}})
 	} else {
-		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFavoriteSuccessMsg}})
+		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.CancelFavoriteSuccessMsg}})
 	}
 
 }
 
-//点赞列表
+// FavoriteList 点赞列表
 func FavoriteList(c *gin.Context) {
 	c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "放行成功！"}})
 }
