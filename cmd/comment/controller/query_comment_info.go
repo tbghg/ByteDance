@@ -13,7 +13,7 @@ type CommentListResponse struct {
 	common.Response
 }
 
-//评论与取消请求
+// CommentActionRequest 评论与取消请求
 type CommentActionRequest struct {
 	UserId      int64  `form:"user_id" validate:"required,numeric"`
 	Token       string `form:"token" validate:"required"`
@@ -23,13 +23,13 @@ type CommentActionRequest struct {
 	CommentId   int64  `form:"comment_id"`
 }
 
-//评论列表请求
+// CommentListRequest 评论列表请求
 type CommentListRequest struct {
 	VideoId int64  `form:"video_id" validate:"required,numeric"`
 	Token   string `form:"token" validate:"required"`
 }
 
-//评论操作
+// CommentAction 评论操作
 func CommentAction(c *gin.Context) {
 
 	var r CommentActionRequest
@@ -50,19 +50,19 @@ func CommentAction(c *gin.Context) {
 	err = service.RelationAction(int32(r.UserId), int32(r.VideoId), r.CommentText, r.ActionType)
 
 	if err != nil {
-		c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: -1}})
+		c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.OperationFailedMsg}})
 		return
 	}
 
 	if r.ActionType == 1 {
-		c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.CommonSuccessMsg}})
+		c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.CommentSuccessMsg}})
 	} else {
-		c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnCommonSuccessMsg}})
+		c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.CancelCommentSuccessMsg}})
 	}
 
 }
 
-//评论列表
+// CommentList 评论列表
 func CommentList(c *gin.Context) {
 	c.JSON(http.StatusOK, CommentListResponse{Response: common.Response{StatusCode: 0, StatusMsg: "获取评论列表成功！"}})
 }
