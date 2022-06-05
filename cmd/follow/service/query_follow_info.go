@@ -38,7 +38,7 @@ func GetFollowListById(userId int64) (userList []follow.User, err error) {
 	userList = make([]follow.User, len(followList))
 
 	for index, followData := range followList {
-		//根据关注用户id查Name
+
 		//可以使用并发执行
 		var wg sync.WaitGroup
 		wg.Add(2)
