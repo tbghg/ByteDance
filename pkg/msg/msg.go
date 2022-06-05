@@ -46,17 +46,16 @@ const (
 	GetFollowUserListFailedMsg  = "获取用户关注列表失败"
 )
 
-//favorite
+//Favorite
 const (
-	FavoriteSuccessMsg       = "点赞成功"
-	CancelFavoriteSuccessMsg = "取消点赞成功"
-	OperationFailedMsg       = "操作失败"
+	FavoriteSuccessMsg   = "点赞成功"
+	UnFavoriteSuccessMsg = "取消点赞成功"
 )
 
-//comment
+//Comment
 const (
-	CommentSuccessMsg       = "评论成功"
-	CancelCommentSuccessMsg = "取消评论成功"
+	CommentSuccessMsg   = "评论成功"
+	UnCommentSuccessMsg = "取消评论成功"
 )
 
 //common

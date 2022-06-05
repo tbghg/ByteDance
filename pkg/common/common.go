@@ -25,6 +25,7 @@ const (
 	TokenExpirationTime = 2 * time.Hour * time.Duration(1) // Token过期时间
 )
 
+//参数检验器
 var (
 	Validate = validator.New()          // 实例化验证器
 	Chinese  = zh.New()                 // 获取中文翻译器
@@ -33,4 +34,7 @@ var (
 )
 
 // OSSPreURL OSS前缀
-const OSSPreURL = "https://byte-dance-01.oss-cn-shanghai.aliyuncs.com/video/"
+const OSSPreURL = "https://byte-dance-01.oss-cn-shanghai.aliyuncs.com/test/"
+
+//取消操作
+const Removed = 1

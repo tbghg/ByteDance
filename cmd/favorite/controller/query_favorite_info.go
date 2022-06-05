@@ -2,6 +2,7 @@ package controller
 
 import (
 	"ByteDance/cmd/favorite/service"
+	"ByteDance/cmd/video"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
@@ -9,29 +10,38 @@ import (
 	"net/http"
 )
 
+//点赞操作返回值
 type FavoriteActionResponse struct {
 	common.Response
 }
 
-// FavoriteActionRequest 点赞与取消请求
+//点赞列表返回值
+type FavoriteListResponse struct {
+	common.Response
+	VideoList []video.TheVideoInfo `json:"video_list"`
+}
+
+//点赞与取消请求
 type FavoriteActionRequest struct {
-	UserId     int64  `form:"user_id" validate:"required,numeric"`
 	Token      string `form:"token" validate:"required"`
 	VideoId    int64  `form:"video_id" validate:"required,numeric"`
 	ActionType int32  `form:"action_type" validate:"required,numeric"`
 }
 
-// FavoriteListRequest 点赞列表请求
+//点赞列表请求
 type FavoriteListRequest struct {
 	UserId int64  `form:"user_id" validate:"required,numeric"`
 	Token  string `form:"token" validate:"required"`
 }
 
-// FavoriteAction 点赞操作
+//点赞操作
 func FavoriteAction(c *gin.Context) {
 	var r FavoriteActionRequest
 	// 接收参数并绑定
 	err := c.ShouldBindQuery(&r)
+	//获取token中的userid
+	value, _ := c.Get("user_id")
+	UserId, _ := value.(int)
 
 	// 使用common包中Validate验证器
 	err = common.Validate.Struct(r)
@@ -45,42 +55,45 @@ func FavoriteAction(c *gin.Context) {
 			return
 		}
 	}
-	//userIdtStr := c.Query("user_id")
-	//videoIdStr := c.Query("video_id")
-	//actionTypeStr := c.Query("action_type")
 
-	//userId, err := strconv.ParseInt(userIdtStr, 10, 64)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-	//	return
-	//}
-	//videoId, err := strconv.ParseInt(videoIdStr, 10, 64)
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-	//	return
-	//}
-	//actionType, err := strconv.ParseInt(actionTypeStr, 10, 64)
-	//
-	//if err != nil {
-	//	c.JSON(http.StatusBadRequest, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-	//	return
-	//}
-
-	err = service.RelationAction(int32(r.UserId), int32(r.VideoId), r.ActionType)
+	err = service.RelationAction(int32(UserId), int32(r.VideoId))
 
 	if err != nil {
-		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.OperationFailedMsg}})
+		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1}})
 		return
 	}
 	if r.ActionType == 1 {
 		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FavoriteSuccessMsg}})
 	} else {
-		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.CancelFavoriteSuccessMsg}})
+		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFavoriteSuccessMsg}})
 	}
 
 }
 
-// FavoriteList 点赞列表
+//点赞列表
 func FavoriteList(c *gin.Context) {
-	c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: "放行成功！"}})
+	var r FavoriteListRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
+	if err != nil {
+		if errors, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回，测试用，上线删除
+			c.JSON(http.StatusBadRequest, gin.H{
+				"翻译前": errors.Error(),
+				"翻译后": errors.Translate(common.Trans),
+			})
+			return
+		}
+	}
+	videoInfo, _ := service.RelationList(int32(r.UserId))
+	//获取成功
+	c.JSON(http.StatusOK, &FavoriteListResponse{
+		Response: common.Response{
+			StatusCode: 0,
+			StatusMsg:  msg.GetVideoInfoSuccessMsg,
+		},
+		VideoList: videoInfo,
+	})
 }

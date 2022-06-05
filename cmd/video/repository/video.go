@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type videoInfo struct {
+type VideoInfo struct {
 	VideoID       int32
 	UserID        int32
 	Username      string
@@ -34,10 +34,10 @@ func init() {
 	})
 }
 
-func (*VideoDaoStruct) GetVideoFeed(lastTime time.Time) ([]videoInfo, bool) {
+func (*VideoDaoStruct) GetVideoFeed(lastTime time.Time) ([]VideoInfo, bool) {
 	v := dal.ConnQuery.Video
 	u := dal.ConnQuery.User
-	var result []videoInfo
+	var result []VideoInfo
 	// 内联查询
 	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.Time.Lt(lastTime), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Limit(10).Scan(&result)
 	if !utils.CatchErr("获取视频信息错误", err) {
