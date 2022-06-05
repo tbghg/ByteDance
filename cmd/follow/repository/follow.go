@@ -30,7 +30,9 @@ func (*FollowStruct) RelationUpdate(userId int32, toUserId int32, actionType int
 	f := dal.ConnQuery.Follow
 
 	follow := &model.Follow{UserID: userId, FunID: toUserId, Removed: actionType}
+
 	var removed int32
+
 	if actionType == 2 {
 		//取消关注 removed为1
 		removed = 1
@@ -60,7 +62,7 @@ func (*FollowStruct) GetFollowById(userId int32) (followList []*model.Follow, er
 
 	f := dal.ConnQuery.Follow
 
-	followList, err = f.Select(f.FunID).Where(f.UserID.Eq(userId)).Find()
+	followList, err = f.Select(f.FunID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userId)).Find()
 
 	utils.CatchErr("获取关注列表id错误", err)
 

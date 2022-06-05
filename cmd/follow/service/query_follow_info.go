@@ -5,6 +5,13 @@ import (
 	"ByteDance/cmd/follow/repository"
 	"ByteDance/dal/method"
 	"ByteDance/utils"
+	"sync"
+)
+
+var (
+	username      string
+	followerCount int64
+	followCount   int64
 )
 
 func RelationAction(userId int32, toUserId int32, actionType int32) (err error) {
@@ -22,7 +29,8 @@ func RelationAction(userId int32, toUserId int32, actionType int32) (err error) 
 
 func GetFollowListById(userId int64) (userList []follow.User, err error) {
 
-	//根据登录用户id获取关注用户id
+	//根据登录用户id获取关注用户id列表
+
 	followList, err := repository.FollowDao.GetFollowById(int32(userId))
 
 	//根据FollowList的长度初始化UserList
@@ -31,14 +39,28 @@ func GetFollowListById(userId int64) (userList []follow.User, err error) {
 
 	for index, followData := range followList {
 		//根据关注用户id查Name
+		//可以使用并发执行
+		var wg sync.WaitGroup
+		wg.Add(2)
 
-		user := method.QueryUserById(followData.FunID)
-		//根据关注用户id查关注总数和粉丝总数
-		followerCount, followCount, _ := method.QueryFollowCount(followData.FunID)
+		go func() {
+			defer wg.Done()
+			//根据关注用户id查用户名
+			user := method.QueryUserById(followData.FunID)
+			username = user.Username
+		}()
+
+		go func() {
+			defer wg.Done()
+			//根据关注用户id查关注总数和粉丝总数
+			followerCount, followCount, _ = method.QueryFollowCount(followData.FunID)
+		}()
+
+		wg.Wait()
 
 		userList[index] = follow.User{
 			Id:            int64(followData.FunID),
-			Name:          user.Username,
+			Name:          username,
 			FollowCount:   followCount,
 			FollowerCount: followerCount,
 			IsFollow:      true,
