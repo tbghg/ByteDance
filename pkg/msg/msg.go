@@ -50,12 +50,14 @@ const (
 const (
 	FavoriteSuccessMsg   = "点赞成功"
 	UnFavoriteSuccessMsg = "取消点赞成功"
+	FavoriteFailedMsg    = "操作失败"
 )
 
 //Comment
 const (
 	CommentSuccessMsg   = "评论成功"
 	UnCommentSuccessMsg = "取消评论成功"
+	CommentFailedMsg    = "操作失败"
 )
 
 //common
