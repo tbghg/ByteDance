@@ -4,7 +4,6 @@ import (
 	videoRepository "ByteDance/cmd/video/repository"
 	"ByteDance/dal"
 	"ByteDance/dal/model"
-	"ByteDance/pkg/common"
 	"ByteDance/utils"
 	"fmt"
 	"sync"
@@ -34,7 +33,7 @@ func init() {
 func (*FavoriteStruct) RelationUpdate(userId int32, videoId int32) (RowsAffected int64) {
 	f := dal.ConnQuery.Favorite
 
-	favorite := &model.Favorite{UserID: userId, VideoID: videoId, Removed: common.Removed}
+	favorite := &model.Favorite{UserID: userId, VideoID: videoId}
 
 	row, err := f.Where(f.UserID.Eq(favorite.UserID), f.VideoID.Eq(favorite.VideoID)).Update(f.Removed, favorite.Removed)
 

@@ -35,6 +35,3 @@ var (
 
 // OSSPreURL OSS前缀
 const OSSPreURL = "https://byte-dance-01.oss-cn-shanghai.aliyuncs.com/test/"
-
-//取消操作
-const Removed = 1
