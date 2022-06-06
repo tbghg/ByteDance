@@ -68,3 +68,44 @@ func GetFollowListById(userId int64) (userList []follow.User, err error) {
 	}
 	return userList, err
 }
+
+func GetFollowerListById(userId int64) (userList []follow.User, err error) {
+	//根据登录用户id获取粉丝id列表
+
+	followerList, err := repository.FollowDao.GetFollowerById(int32(userId))
+
+	//根据FollowList的长度初始化UserList
+
+	userList = make([]follow.User, len(followerList))
+
+	for index, followData := range followerList {
+
+		//可以使用并发执行
+		var wg sync.WaitGroup
+		wg.Add(2)
+
+		go func() {
+			defer wg.Done()
+			//根据粉丝id查用户名
+			user := method.QueryUserById(followData.UserID)
+			username = user.Username
+		}()
+
+		go func() {
+			defer wg.Done()
+			//根据粉丝id查关注总数和粉丝总数
+			followerCount, followCount, _ = method.QueryFollowCount(followData.UserID)
+		}()
+
+		wg.Wait()
+
+		userList[index] = follow.User{
+			Id:            int64(followData.UserID),
+			Name:          username,
+			FollowCount:   followCount,
+			FollowerCount: followerCount,
+			IsFollow:      true,
+		}
+	}
+	return userList, err
+}

@@ -84,3 +84,26 @@ func FollowList(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, FollowListResponse{common.Response{StatusCode: -1, StatusMsg: msg.GetFollowUserListFailedMsg}, UserList})
 	}
 }
+
+/**
+获取登录用户关注的粉丝用户列表
+*/
+func FollowerList(c *gin.Context) {
+	userIdtStr := c.Query("user_id")
+	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
+		return
+	}
+
+	UserList, err := service.GetFollowerListById(userId)
+
+	if err == nil {
+		c.JSON(http.StatusOK, FollowListResponse{common.Response{
+			StatusCode: 0,
+			StatusMsg:  msg.GetFollowerUserListSuccessMsg},
+			UserList})
+	} else {
+		c.JSON(http.StatusBadRequest, FollowListResponse{common.Response{StatusCode: -1, StatusMsg: msg.GetFollowerUserListFailedMsg}, UserList})
+	}
+}
