@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"ByteDance/cmd/favorite/repository"
 	"ByteDance/cmd/favorite/service"
 	"ByteDance/cmd/video"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
+	"ByteDance/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -35,6 +37,20 @@ type FavoriteListRequest struct {
 }
 
 //点赞操作
+func RelationAction(userId int32, videoId int32) (err error) {
+	//更新 如果数据库没有该数据则返回IsExist = 0
+	IsExist := repository.FavoriteDao.RelationUpdate(userId, videoId)
+
+	if IsExist == 0 {
+		//添加该数据
+		err = repository.FavoriteDao.RelationCreate(userId, videoId)
+		utils.CatchErr("添加失败", err)
+	}
+
+	return err
+}
+
+//点赞操作
 func FavoriteAction(c *gin.Context) {
 	var r FavoriteActionRequest
 	// 接收参数并绑定
@@ -46,20 +62,17 @@ func FavoriteAction(c *gin.Context) {
 	// 使用common包中Validate验证器
 	err = common.Validate.Struct(r)
 	if err != nil {
-		if errors, ok := err.(validator.ValidationErrors); ok {
+		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, gin.H{
-				"翻译前": errors.Error(),
-				"翻译后": errors.Translate(common.Trans),
-			})
+			c.JSON(http.StatusBadRequest, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
 
-	err = service.RelationAction(int32(UserId), int32(r.VideoId))
+	err = RelationAction(int32(UserId), int32(r.VideoId))
 
 	if err != nil {
-		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1}})
+		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.FavoriteFailedMsg}})
 		return
 	}
 	if r.ActionType == 1 {
@@ -78,12 +91,10 @@ func FavoriteList(c *gin.Context) {
 	// 使用common包中Validate验证器
 	err = common.Validate.Struct(r)
 	if err != nil {
-		if errors, ok := err.(validator.ValidationErrors); ok {
+		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回，测试用，上线删除
-			c.JSON(http.StatusBadRequest, gin.H{
-				"翻译前": errors.Error(),
-				"翻译后": errors.Translate(common.Trans),
-			})
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
