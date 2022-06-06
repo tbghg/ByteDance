@@ -101,7 +101,7 @@ func CommentList(c *gin.Context) {
 	c.JSON(http.StatusOK, &CommentListResponse{
 		Response: common.Response{
 			StatusCode: 0,
-			StatusMsg:  msg.GetVideoInfoSuccessMsg,
+			StatusMsg:  msg.GetCommentUserListSuccessMsg,
 		},
 		CommentList: commentInfo,
 	})

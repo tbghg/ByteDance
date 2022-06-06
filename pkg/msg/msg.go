@@ -50,16 +50,18 @@ const (
 
 //Favorite
 const (
-	FavoriteSuccessMsg   = "点赞成功"
-	UnFavoriteSuccessMsg = "取消点赞成功"
-	FavoriteFailedMsg    = "操作失败"
+	FavoriteSuccessMsg            = "点赞成功"
+	UnFavoriteSuccessMsg          = "取消点赞成功"
+	GetFavoriteUserListSuccessMsg = "获取用户点赞列表成功"
+	FavoriteFailedMsg             = "操作失败"
 )
 
 //Comment
 const (
-	CommentSuccessMsg   = "评论成功"
-	UnCommentSuccessMsg = "取消评论成功"
-	CommentFailedMsg    = "操作失败"
+	CommentSuccessMsg            = "评论成功"
+	UnCommentSuccessMsg          = "取消评论成功"
+	GetCommentUserListSuccessMsg = "获取视频评论列表成功"
+	CommentFailedMsg             = "操作失败"
 )
 
 //common

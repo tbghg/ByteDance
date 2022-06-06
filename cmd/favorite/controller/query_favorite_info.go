@@ -103,7 +103,7 @@ func FavoriteList(c *gin.Context) {
 	c.JSON(http.StatusOK, &FavoriteListResponse{
 		Response: common.Response{
 			StatusCode: 0,
-			StatusMsg:  msg.GetVideoInfoSuccessMsg,
+			StatusMsg:  msg.GetFavoriteUserListSuccessMsg,
 		},
 		VideoList: videoInfo,
 	})
