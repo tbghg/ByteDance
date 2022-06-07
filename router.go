@@ -1,12 +1,11 @@
 package main
 
 import (
+	commentController "ByteDance/cmd/comment/controller"
 	favoriteController "ByteDance/cmd/favorite/controller"
 	relationController "ByteDance/cmd/follow/controller"
 	userController "ByteDance/cmd/user/controller"
 	videoController "ByteDance/cmd/video/controller"
-
-	commentController "ByteDance/cmd/comment/controller"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/middleware"
 	"github.com/gin-gonic/gin"
@@ -43,12 +42,11 @@ func initRouter(r *gin.Engine) {
 		publish := GRoute.Group("/publish")
 		{
 			publish.POST("/action/", middleware.JwtMiddleware("form-data"), videoController.PublishVideo)
-			//publish.GET("/list/", middleware.JwtMiddleware("query"),)
+			publish.GET("/list/", middleware.JwtMiddleware("query"), videoController.PublicList)
 		}
 		//comment路由组
 		comment := GRoute.Group("/comment").Use(middleware.JwtMiddleware("query"))
 		{
-
 			comment.POST("/action/", commentController.CommentAction)
 			comment.GET("/list/", commentController.CommentList)
 		}

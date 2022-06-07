@@ -83,3 +83,35 @@ func PublishVideo(userID int, title string, fileBytes []byte) bool {
 	}
 
 }
+
+func PublishList(userID int) (videoInfo []video.TheVideoInfo, success bool) {
+
+	videoInfoDataList, _ := repository.VideoDao.GetVideoList(userID)
+
+	videoInfo = make([]video.TheVideoInfo, len(videoInfoDataList))
+
+	for index, videoInfoData := range videoInfoDataList {
+		followerCount, followCount, _ := method.QueryFollowCount(videoInfoData.UserID)
+		commentCount := method.QueryCommentCountByVideoID(videoInfoData.VideoID)
+		favoriteCount := method.QueryFavoriteCount(videoInfoData.UserID)
+
+		videoInfo[index] = video.TheVideoInfo{
+			ID: videoInfoData.VideoID,
+			Author: video.AuthorInfo{
+				ID:            videoInfoData.UserID,
+				Name:          videoInfoData.Username,
+				FollowCount:   int(followCount),
+				FollowerCount: int(followerCount),
+				IsFollow:      false,
+			},
+			PlayURL:       common.OSSPreURL + videoInfoData.PlayURL + ".mp4",
+			CoverURL:      common.OSSPreURL + videoInfoData.CoverURL + ".jpg",
+			FavoriteCount: int(favoriteCount),
+			CommentCount:  int(commentCount),
+			IsFavorite:    false,
+			Title:         videoInfoData.Title,
+		}
+	}
+
+	return videoInfo, true
+}
