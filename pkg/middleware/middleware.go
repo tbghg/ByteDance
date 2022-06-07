@@ -17,7 +17,6 @@ var mySecret = []byte(common.MySecret)
 func JwtMiddleware(method string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//从请求头中获取token
-		//从请求头中获取token
 		var tokenStr string
 		if method == "query" {
 			tokenStr = c.Query("token")
@@ -57,7 +56,7 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 			return
 		}
 		//失效的token
-		c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenValid})
+		c.JSON(http.StatusOK, gin.H{"status_code": 0, "status_msg": msg.TokenValid})
 		c.Abort() //阻止执行
 		return
 	}
