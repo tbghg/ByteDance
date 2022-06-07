@@ -3,11 +3,23 @@ package repository
 import (
 	"ByteDance/dal"
 	"ByteDance/dal/model"
+	"ByteDance/pkg/common"
 	"ByteDance/utils"
 	"sync"
 )
 
-type Favorite struct {
+//接收comment表返回数据
+type CommentInfo struct {
+	ID            int32
+	UserID        int32
+	Username      string
+	Content       string
+	CreateDate    string
+	FavoriteCount int
+	IsFavorite    bool
+}
+
+type Comment struct {
 	model.Comment
 }
 
@@ -26,24 +38,42 @@ func init() {
 	})
 }
 
-func (*CommentStruct) RelationUpdate(userId int32, videoId int32, actionType int32) (RowsAffected int64) {
-	f := dal.ConnQuery.Comment
+//取消评论
+func (*CommentStruct) RelationUpdate(commentId int32) (RowsAffected int64) {
+	c := dal.ConnQuery.Comment
 
-	comment := &model.Comment{UserID: userId, VideoID: videoId, Removed: actionType}
+	comment := &model.Comment{ID: commentId}
 
-	row, err := f.Where(f.UserID.Eq(comment.UserID), f.VideoID.Eq(comment.VideoID)).Update(f.Removed, comment.Removed)
+	row, err := c.Where(c.ID.Eq(comment.ID)).Update(c.Removed, common.Removed)
 
 	utils.CatchErr("更新错误", err)
 
 	return row.RowsAffected
 }
 
+//评论操作
 func (*CommentStruct) RelationCreate(userId int32, videoId int32, commentText string) (err error) {
-	f := dal.ConnQuery.Comment
+	c := dal.ConnQuery.Comment
 
 	comment := &model.Comment{UserID: userId, VideoID: videoId, Content: commentText}
 
-	err = f.Create(comment)
+	err = c.Create(comment)
 
 	return err
+}
+
+//评论列表
+func (*CommentStruct) RelationSelect(videoId int32) ([]CommentInfo, bool) {
+	c := dal.ConnQuery.Comment
+	u := dal.ConnQuery.User
+
+	var result []CommentInfo
+	// 内联查询
+	err := c.Select(c.ID, c.UserID, u.Username, c.Content, c.CreateTime.As("CreateDate")).Where(c.VideoID.Eq(videoId), c.Removed.Eq(0), c.Deleted.Eq(0)).Join(u, u.ID.EqCol(c.UserID)).Scan(&result)
+	utils.CatchErr("获取视频信息错误", err)
+	if result == nil {
+		return nil, false
+
+	}
+	return result, true
 }

@@ -68,3 +68,14 @@ func (*FollowStruct) GetFollowById(userId int32) (followList []*model.Follow, er
 
 	return followList, err
 }
+
+func (*FollowStruct) GetFollowerById(userId int32) (followerList []*model.Follow, err error) {
+
+	f := dal.ConnQuery.Follow
+
+	followerList, err = f.Select(f.UserID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.FunID.Eq(userId)).Find()
+
+	utils.CatchErr("获取粉丝列表id错误", err)
+
+	return followerList, err
+}

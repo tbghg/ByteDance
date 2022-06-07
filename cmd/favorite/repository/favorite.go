@@ -5,7 +5,6 @@ import (
 	"ByteDance/dal"
 	"ByteDance/dal/model"
 	"ByteDance/utils"
-	"fmt"
 	"sync"
 )
 
@@ -61,15 +60,11 @@ func (*FavoriteStruct) RelationSelect(userId int32) ([]videoRepository.VideoInfo
 
 	var result []videoRepository.VideoInfo
 	// 内联查询
-	err := f.Debug().Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(f.UserID.Eq(userId), f.Removed.Eq(0), f.Deleted.Eq(0)).Join(v, v.ID.EqCol(f.VideoID)).Join(u, u.ID.EqCol(v.AuthorID)).Scan(&result)
+	err := f.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(f.UserID.Eq(userId), f.Removed.Eq(0), f.Deleted.Eq(0)).Join(v, v.ID.EqCol(f.VideoID)).Join(u, u.ID.EqCol(v.AuthorID)).Scan(&result)
 	utils.CatchErr("获取视频信息错误", err)
 	if result == nil {
-		fmt.Println("..................获取失败................")
 		return nil, false
 
 	}
-	fmt.Println("..................获取成功................")
-	fmt.Println()
-	fmt.Println(result)
 	return result, true
 }
