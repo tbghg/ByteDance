@@ -12,6 +12,7 @@ var (
 	username      string
 	followerCount int64
 	followCount   int64
+	isFollow      bool
 )
 
 func RelationAction(userId int32, toUserId int32, actionType int32) (err error) {
@@ -53,7 +54,7 @@ func GetFollowListById(userId int64) (userList []follow.User, err error) {
 		go func() {
 			defer wg.Done()
 			//根据关注用户id查关注总数和粉丝总数
-			followerCount, followCount, _ = method.QueryFollowCount(followData.FunID)
+			followCount, followerCount, _ = method.QueryFollowCount(followData.FunID)
 		}()
 
 		wg.Wait()
@@ -82,7 +83,7 @@ func GetFollowerListById(userId int64) (userList []follow.User, err error) {
 
 		//可以使用并发执行
 		var wg sync.WaitGroup
-		wg.Add(2)
+		wg.Add(3)
 
 		go func() {
 			defer wg.Done()
@@ -94,7 +95,14 @@ func GetFollowerListById(userId int64) (userList []follow.User, err error) {
 		go func() {
 			defer wg.Done()
 			//根据粉丝id查关注总数和粉丝总数
-			followerCount, followCount, _ = method.QueryFollowCount(followData.UserID)
+			followCount, followerCount, _ = method.QueryFollowCount(followData.UserID)
+		}()
+
+		go func() {
+			defer wg.Done()
+			//根据登录用户id查询是否关注该粉丝用户(互关)
+			isFollow = repository.FollowDao.QueryIsFollowById(int32(userId), followData.UserID)
+
 		}()
 
 		wg.Wait()
@@ -104,7 +112,7 @@ func GetFollowerListById(userId int64) (userList []follow.User, err error) {
 			Name:          username,
 			FollowCount:   followCount,
 			FollowerCount: followerCount,
-			IsFollow:      true,
+			IsFollow:      isFollow,
 		}
 	}
 	return userList, err

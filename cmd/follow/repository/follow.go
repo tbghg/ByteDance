@@ -4,6 +4,8 @@ import (
 	"ByteDance/dal"
 	"ByteDance/dal/model"
 	"ByteDance/utils"
+	"errors"
+	"gorm.io/gorm"
 	"sync"
 )
 
@@ -78,4 +80,17 @@ func (*FollowStruct) GetFollowerById(userId int32) (followerList []*model.Follow
 	utils.CatchErr("获取粉丝列表id错误", err)
 
 	return followerList, err
+}
+
+func (*FollowStruct) QueryIsFollowById(userId int32, funId int32) (isFollow bool) {
+
+	f := dal.ConnQuery.Follow
+
+	_, err := f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userId), f.FunID.Eq(funId)).Take()
+
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		// 查询到存在相关记录
+		return true
+	}
+	return false
 }
