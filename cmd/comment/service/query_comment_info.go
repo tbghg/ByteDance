@@ -11,14 +11,14 @@ import (
 	"github.com/araddon/dateparse"
 )
 
-func RelationAction(userId int32, videoId int32, commentText string, commentId int32) (err error) {
+func CommentAction(userId int32, videoId int32, commentText string, commentId int32) (err error) {
 	//更新 如果数据库没有该数据则返回IsExist = 0
-	IsExist := repository.CommentDao.RelationUpdate(commentId)
+	IsExist := repository.CommentDao.CommentUpdate(commentId)
 
 	//commentText不空，创建评论
 	if IsExist == 0 && len(commentText) != 0 {
 		//添加该数据
-		err = repository.CommentDao.RelationCreate(userId, videoId, commentText)
+		err = repository.CommentDao.CommentCreate(userId, videoId, commentText)
 		utils.CatchErr("添加失败", err)
 	}
 
@@ -26,8 +26,8 @@ func RelationAction(userId int32, videoId int32, commentText string, commentId i
 }
 
 //评论列表
-func RelationList(videoId int32) (commentInfo []comment.TheCommentInfo, state int) {
-	allCommentInfoData, _ := repository.CommentDao.RelationSelect(videoId)
+func CommentList(videoId int32) (commentInfo []comment.TheCommentInfo, state int) {
+	allCommentInfoData, _ := repository.CommentDao.CommentList(videoId)
 
 	commentInfo = make([]comment.TheCommentInfo, len(allCommentInfoData))
 

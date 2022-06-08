@@ -37,13 +37,13 @@ type FavoriteListRequest struct {
 }
 
 //点赞操作
-func RelationAction(userId int32, videoId int32) (err error) {
+func favoriteAction(userId int32, videoId int32) (err error) {
 	//更新 如果数据库没有该数据则返回IsExist = 0
-	IsExist := repository.FavoriteDao.RelationUpdate(userId, videoId)
+	IsExist := repository.FavoriteDao.FavoriteUpdate(userId, videoId)
 
 	if IsExist == 0 {
 		//添加该数据
-		err = repository.FavoriteDao.RelationCreate(userId, videoId)
+		err = repository.FavoriteDao.FavoriteCreate(userId, videoId)
 		utils.CatchErr("添加失败", err)
 	}
 
@@ -69,7 +69,7 @@ func FavoriteAction(c *gin.Context) {
 		}
 	}
 
-	err = RelationAction(int32(UserId), int32(r.VideoId))
+	err = favoriteAction(int32(UserId), int32(r.VideoId))
 
 	if err != nil {
 		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.FavoriteFailedMsg}})
@@ -92,13 +92,11 @@ func FavoriteList(c *gin.Context) {
 	err = common.Validate.Struct(r)
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
-			// 翻译，并返回，测试用，上线删除
-			// 翻译，并返回
 			c.JSON(http.StatusBadRequest, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
-	videoInfo, _ := service.RelationList(int32(r.UserId))
+	videoInfo, _ := service.FavoriteList(int32(r.UserId))
 	//获取成功
 	c.JSON(http.StatusOK, &FavoriteListResponse{
 		Response: common.Response{

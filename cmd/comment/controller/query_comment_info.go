@@ -67,7 +67,7 @@ func CommentAction(c *gin.Context) {
 			return
 		}
 	}
-	err = service.RelationAction(int32(UserId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
+	err = service.CommentAction(int32(UserId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
 
 	if err != nil {
 		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
@@ -96,7 +96,7 @@ func CommentList(c *gin.Context) {
 			return
 		}
 	}
-	commentInfo, _ := service.RelationList(int32(r.VideoId))
+	commentInfo, _ := service.CommentList(int32(r.VideoId))
 	//获取成功
 	c.JSON(http.StatusOK, &CommentListResponse{
 		Response: common.Response{

@@ -4,6 +4,7 @@ import (
 	videoRepository "ByteDance/cmd/video/repository"
 	"ByteDance/dal"
 	"ByteDance/dal/model"
+	"ByteDance/pkg/common"
 	"ByteDance/utils"
 	"sync"
 )
@@ -29,12 +30,12 @@ func init() {
 }
 
 //取消点赞
-func (*FavoriteStruct) RelationUpdate(userId int32, videoId int32) (RowsAffected int64) {
+func (*FavoriteStruct) FavoriteUpdate(userId int32, videoId int32) (RowsAffected int64) {
 	f := dal.ConnQuery.Favorite
 
 	favorite := &model.Favorite{UserID: userId, VideoID: videoId}
 
-	row, err := f.Where(f.UserID.Eq(favorite.UserID), f.VideoID.Eq(favorite.VideoID)).Update(f.Removed, favorite.Removed)
+	row, err := f.Where(f.UserID.Eq(favorite.UserID), f.VideoID.Eq(favorite.VideoID)).Update(f.Removed, common.Removed)
 
 	utils.CatchErr("更新错误", err)
 
@@ -42,7 +43,7 @@ func (*FavoriteStruct) RelationUpdate(userId int32, videoId int32) (RowsAffected
 }
 
 //点赞
-func (*FavoriteStruct) RelationCreate(userId int32, videoId int32) (err error) {
+func (*FavoriteStruct) FavoriteCreate(userId int32, videoId int32) (err error) {
 	f := dal.ConnQuery.Favorite
 
 	favorite := &model.Favorite{UserID: userId, VideoID: videoId}
@@ -53,7 +54,7 @@ func (*FavoriteStruct) RelationCreate(userId int32, videoId int32) (err error) {
 }
 
 //点赞列表
-func (*FavoriteStruct) RelationSelect(userId int32) ([]videoRepository.VideoInfo, bool) {
+func (*FavoriteStruct) FavoriteList(userId int32) ([]videoRepository.VideoInfo, bool) {
 	v := dal.ConnQuery.Video
 	u := dal.ConnQuery.User
 	f := dal.ConnQuery.Favorite

@@ -8,9 +8,9 @@ import (
 )
 
 //点赞列表
-func RelationList(userId int32) (videoInfo []video.TheVideoInfo, state int) {
+func FavoriteList(userId int32) (videoInfo []video.TheVideoInfo, state int) {
 
-	allVideoInfoData, _ := repository.FavoriteDao.RelationSelect(userId)
+	allVideoInfoData, _ := repository.FavoriteDao.FavoriteList(userId)
 
 	videoInfo = make([]video.TheVideoInfo, len(allVideoInfoData))
 
