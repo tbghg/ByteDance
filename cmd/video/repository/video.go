@@ -5,7 +5,6 @@ import (
 	"ByteDance/dal/model"
 	"ByteDance/utils"
 	"sync"
-	"time"
 )
 
 type VideoInfo struct {
@@ -16,7 +15,7 @@ type VideoInfo struct {
 	CoverURL      string
 	FavoriteCount int
 	IsFavorite    bool
-	Time          time.Time
+	Time          int32
 	Title         string
 }
 
@@ -34,12 +33,38 @@ func init() {
 	})
 }
 
-func (*VideoDaoStruct) GetVideoFeed(lastTime time.Time) ([]VideoInfo, bool) {
+func (*VideoDaoStruct) GetVideoFeed(lastTime int32) ([]VideoInfo, bool) {
 	v := dal.ConnQuery.Video
 	u := dal.ConnQuery.User
 	var result []VideoInfo
 	// 内联查询
 	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.Time.Lt(lastTime), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Limit(10).Scan(&result)
+	if !utils.CatchErr("获取视频信息错误", err) {
+		return nil, false
+	}
+	if result == nil {
+		return nil, false
+	}
+	return result, true
+}
+
+func (*VideoDaoStruct) GetVideoInfo(userID int32, videoID int32) (followerCount int64, followCount int64, commentCount int64, favoriteCount int64) {
+	f := dal.ConnQuery.Follow
+	c := dal.ConnQuery.Comment
+	favorite := dal.ConnQuery.Favorite
+	followerCount = f.QueryFollowerCount(userID)
+	followCount = f.QueryFollowCount(userID)
+	commentCount = c.QueryCommentCount(videoID)
+	favoriteCount = favorite.QueryFavoriteCount(videoID)
+	return followerCount, followCount, commentCount, favoriteCount
+}
+
+func (*VideoDaoStruct) GetVideoList(userID int) ([]VideoInfo, bool) {
+	v := dal.ConnQuery.Video
+	u := dal.ConnQuery.User
+	var result []VideoInfo
+	// 内联查询
+	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.AuthorID.Eq(int32(userID)), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Limit(10).Scan(&result)
 	if !utils.CatchErr("获取视频信息错误", err) {
 		return nil, false
 	}

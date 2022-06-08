@@ -28,10 +28,10 @@ func newUser(db *gorm.DB) user {
 	_user.ID = field.NewInt32(tableName, "id")
 	_user.Username = field.NewString(tableName, "username")
 	_user.Password = field.NewString(tableName, "password")
-	_user.LoginTime = field.NewTime(tableName, "login_time")
 	_user.Enable = field.NewInt32(tableName, "enable")
-	_user.CreateTime = field.NewTime(tableName, "create_time")
 	_user.Deleted = field.NewInt32(tableName, "deleted")
+	_user.LoginTime = field.NewTime(tableName, "login_time")
+	_user.CreateTime = field.NewTime(tableName, "create_time")
 
 	_user.fillFieldMap()
 
@@ -45,10 +45,10 @@ type user struct {
 	ID         field.Int32
 	Username   field.String
 	Password   field.String
-	LoginTime  field.Time
 	Enable     field.Int32
-	CreateTime field.Time
 	Deleted    field.Int32
+	LoginTime  field.Time
+	CreateTime field.Time
 
 	fieldMap map[string]field.Expr
 }
@@ -68,10 +68,10 @@ func (u *user) updateTableName(table string) *user {
 	u.ID = field.NewInt32(table, "id")
 	u.Username = field.NewString(table, "username")
 	u.Password = field.NewString(table, "password")
-	u.LoginTime = field.NewTime(table, "login_time")
 	u.Enable = field.NewInt32(table, "enable")
-	u.CreateTime = field.NewTime(table, "create_time")
 	u.Deleted = field.NewInt32(table, "deleted")
+	u.LoginTime = field.NewTime(table, "login_time")
+	u.CreateTime = field.NewTime(table, "create_time")
 
 	u.fillFieldMap()
 
@@ -92,10 +92,10 @@ func (u *user) fillFieldMap() {
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["username"] = u.Username
 	u.fieldMap["password"] = u.Password
-	u.fieldMap["login_time"] = u.LoginTime
 	u.fieldMap["enable"] = u.Enable
-	u.fieldMap["create_time"] = u.CreateTime
 	u.fieldMap["deleted"] = u.Deleted
+	u.fieldMap["login_time"] = u.LoginTime
+	u.fieldMap["create_time"] = u.CreateTime
 }
 
 func (u user) clone(db *gorm.DB) user {

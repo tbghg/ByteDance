@@ -6,6 +6,7 @@ package query
 
 import (
 	"context"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -26,8 +27,8 @@ func newFavorite(db *gorm.DB) favorite {
 	tableName := _favorite.favoriteDo.TableName()
 	_favorite.ALL = field.NewField(tableName, "*")
 	_favorite.ID = field.NewInt32(tableName, "id")
-	_favorite.UserID = field.NewInt32(tableName, "user_id")
 	_favorite.VideoID = field.NewInt32(tableName, "video_id")
+	_favorite.UserID = field.NewInt32(tableName, "user_id")
 	_favorite.Removed = field.NewInt32(tableName, "removed")
 	_favorite.Deleted = field.NewInt32(tableName, "deleted")
 
@@ -41,8 +42,8 @@ type favorite struct {
 
 	ALL     field.Field
 	ID      field.Int32
-	UserID  field.Int32
 	VideoID field.Int32
+	UserID  field.Int32
 	Removed field.Int32
 	Deleted field.Int32
 
@@ -62,8 +63,8 @@ func (f favorite) As(alias string) *favorite {
 func (f *favorite) updateTableName(table string) *favorite {
 	f.ALL = field.NewField(table, "*")
 	f.ID = field.NewInt32(table, "id")
-	f.UserID = field.NewInt32(table, "user_id")
 	f.VideoID = field.NewInt32(table, "video_id")
+	f.UserID = field.NewInt32(table, "user_id")
 	f.Removed = field.NewInt32(table, "removed")
 	f.Deleted = field.NewInt32(table, "deleted")
 
@@ -84,8 +85,8 @@ func (f *favorite) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 func (f *favorite) fillFieldMap() {
 	f.fieldMap = make(map[string]field.Expr, 5)
 	f.fieldMap["id"] = f.ID
-	f.fieldMap["user_id"] = f.UserID
 	f.fieldMap["video_id"] = f.VideoID
+	f.fieldMap["user_id"] = f.UserID
 	f.fieldMap["removed"] = f.Removed
 	f.fieldMap["deleted"] = f.Deleted
 }
@@ -96,6 +97,24 @@ func (f favorite) clone(db *gorm.DB) favorite {
 }
 
 type favoriteDo struct{ gen.DO }
+
+//查询视频点赞数目
+//
+//select count(1) from favorite where video_id = @videoID and removed = 0 and deleted = 0
+func (f favoriteDo) QueryFavoriteCount(videoID int32) (result int64) {
+	params := make(map[string]interface{}, 0)
+
+	var generateSQL strings.Builder
+	params["videoID"] = videoID
+	generateSQL.WriteString("select count(1) from favorite where video_id = @videoID and removed = 0 and deleted = 0 ")
+
+	if len(params) > 0 {
+		_ = f.UnderlyingDB().Raw(generateSQL.String(), params).Take(&result)
+	} else {
+		_ = f.UnderlyingDB().Raw(generateSQL.String()).Take(&result)
+	}
+	return
+}
 
 func (f favoriteDo) Debug() *favoriteDo {
 	return f.withDO(f.DO.Debug())

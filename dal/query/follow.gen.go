@@ -6,6 +6,7 @@ package query
 
 import (
 	"context"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -96,6 +97,42 @@ func (f follow) clone(db *gorm.DB) follow {
 }
 
 type followDo struct{ gen.DO }
+
+//查询用户粉丝数
+//
+//select count(1) from follow Where user_id = @userID and removed = 0 and deleted = 0
+func (f followDo) QueryFollowerCount(userID int32) (result int64) {
+	params := make(map[string]interface{}, 0)
+
+	var generateSQL strings.Builder
+	params["userID"] = userID
+	generateSQL.WriteString("select count(1) from follow Where user_id = @userID and removed = 0 and deleted = 0 ")
+
+	if len(params) > 0 {
+		_ = f.UnderlyingDB().Raw(generateSQL.String(), params).Take(&result)
+	} else {
+		_ = f.UnderlyingDB().Raw(generateSQL.String()).Take(&result)
+	}
+	return
+}
+
+//查询粉丝数目
+//
+//select count(1) from follow Where fun_id = @funID and removed = 0 and deleted = 0
+func (f followDo) QueryFollowCount(funID int32) (result int64) {
+	params := make(map[string]interface{}, 0)
+
+	var generateSQL strings.Builder
+	params["funID"] = funID
+	generateSQL.WriteString("select count(1) from follow Where fun_id = @funID and removed = 0 and deleted = 0 ")
+
+	if len(params) > 0 {
+		_ = f.UnderlyingDB().Raw(generateSQL.String(), params).Take(&result)
+	} else {
+		_ = f.UnderlyingDB().Raw(generateSQL.String()).Take(&result)
+	}
+	return
+}
 
 func (f followDo) Debug() *followDo {
 	return f.withDO(f.DO.Debug())

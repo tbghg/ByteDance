@@ -29,7 +29,7 @@ func newVideo(db *gorm.DB) video {
 	_video.AuthorID = field.NewInt32(tableName, "author_id")
 	_video.PlayURL = field.NewString(tableName, "play_url")
 	_video.CoverURL = field.NewString(tableName, "cover_url")
-	_video.Time = field.NewTime(tableName, "time")
+	_video.Time = field.NewInt32(tableName, "time")
 	_video.Title = field.NewString(tableName, "title")
 	_video.Removed = field.NewInt32(tableName, "removed")
 	_video.Deleted = field.NewInt32(tableName, "deleted")
@@ -47,7 +47,7 @@ type video struct {
 	AuthorID field.Int32
 	PlayURL  field.String
 	CoverURL field.String
-	Time     field.Time
+	Time     field.Int32
 	Title    field.String
 	Removed  field.Int32
 	Deleted  field.Int32
@@ -71,7 +71,7 @@ func (v *video) updateTableName(table string) *video {
 	v.AuthorID = field.NewInt32(table, "author_id")
 	v.PlayURL = field.NewString(table, "play_url")
 	v.CoverURL = field.NewString(table, "cover_url")
-	v.Time = field.NewTime(table, "time")
+	v.Time = field.NewInt32(table, "time")
 	v.Title = field.NewString(table, "title")
 	v.Removed = field.NewInt32(table, "removed")
 	v.Deleted = field.NewInt32(table, "deleted")

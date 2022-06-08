@@ -21,9 +21,15 @@ type getVideoResponse struct {
 	VideoList []video.TheVideoInfo `json:"video_list"`
 }
 
+// 获取视频返回值
+type videoListResponse struct {
+	common.Response
+	VideoList []video.TheVideoInfo `json:"video_list"`
+}
+
 // GetVideoFeed 获取视频流信息
 func GetVideoFeed(c *gin.Context) {
-	lastTime, _ := strconv.ParseInt(c.Query("last_time"), 10, 64)
+	lastTime, _ := strconv.ParseInt(c.Query("last_time"), 10, 32)
 	// 获取视频信息不需要token
 	if lastTime == 0 {
 		lastTime = time.Now().Unix()
@@ -92,6 +98,36 @@ func PublishVideo(c *gin.Context) {
 			common.Response{
 				StatusCode: -1,
 				StatusMsg:  msg.PublishVideoFailedMsg,
+			})
+	}
+}
+
+// PublicList 登录用户的视频发布列表，直接列出用户所有投稿过的视频
+func PublicList(c *gin.Context) {
+
+	userID, success := c.Get("user_id")
+	if !success {
+		c.JSON(http.StatusOK,
+			common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.TokenParameterAcquisitionError,
+			})
+		return
+	}
+	videoInfo, success2 := service.PublishList(userID.(int))
+	if success2 {
+		c.JSON(http.StatusOK, &videoListResponse{
+			Response: common.Response{
+				StatusCode: 0,
+				StatusMsg:  msg.GetPublishListSuccessMsg,
+			},
+			VideoList: videoInfo,
+		})
+	} else {
+		c.JSON(http.StatusOK,
+			common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.GetPublishListFailedMsg,
 			})
 	}
 }

@@ -3,7 +3,6 @@ package service
 import (
 	"ByteDance/cmd/user"
 	"ByteDance/cmd/user/repository"
-	"ByteDance/dal/method"
 	"ByteDance/utils"
 )
 
@@ -13,8 +12,8 @@ func RegUser(username string, password string) (regUserData *user.RegUserData, i
 	if !isExist {
 		id, err := repository.UserDao.CreateUser(username, password)
 		utils.CatchErr("CreateUser", err)
-		token, err := utils.GenToken(id)
-		utils.CatchErr("tokenError", err)
+		token, err2 := utils.GenToken(id)
+		utils.CatchErr("tokenError", err2)
 		regUserData = &user.RegUserData{
 			ID:    id,
 			Token: token,
@@ -39,20 +38,13 @@ func LoginUser(username string, password string) (loginData *user.LoginData, sta
 	return loginData, state
 }
 
-func GetUserInfo(userID int32) (userInfoData *user.GetUserInfoData, state int) {
-	// state 0:userID不存在  1:查询成功  -1:查询失败
+func GetUserInfo(userID int32) (userInfoData *user.GetUserInfoData, success bool) {
 	// 分两段，第一部分查询用户名，第二部分count粉丝数、关注数
-	username, isExist := repository.UserDao.QueryUsernameByID(userID)
+	username, followCount, followerCount, isExist := repository.UserDao.QueryUserInfoByID(userID)
 	if !isExist {
 		// userID 不存在相关记录
-		return nil, 0
-	}
-	// 查询粉丝数、关注数
-	followCount, followerCount, success := method.QueryFollowCount(userID)
-	if !success {
-		state = -1
+		return nil, false
 	} else {
-		state = 1
 		userInfoData = &user.GetUserInfoData{
 			ID:            userID,
 			UseName:       username,
@@ -60,6 +52,6 @@ func GetUserInfo(userID int32) (userInfoData *user.GetUserInfoData, state int) {
 			FollowerCount: followerCount,
 			IsFollow:      false,
 		}
+		return userInfoData, true
 	}
-	return userInfoData, state
 }

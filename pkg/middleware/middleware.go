@@ -11,12 +11,9 @@ import (
 
 var mySecret = []byte(common.MySecret)
 
-/* JwtMiddleware jwt中间件
-使用方法：路由组最后use(utils.JwtMiddleware 参考favorite路由组)
-*/
+// JwtMiddleware jwt中间件 使用方法：路由组最后use(utils.JwtMiddleware 参考favorite路由组)
 func JwtMiddleware(method string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//从请求头中获取token
 		//从请求头中获取token
 		var tokenStr string
 		if method == "query" {
@@ -57,7 +54,7 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 			return
 		}
 		//失效的token
-		c.JSON(http.StatusOK, gin.H{"code": 0, "msg": msg.TokenValid})
+		c.JSON(http.StatusOK, gin.H{"status_code": -1, "status_msg": msg.TokenValid})
 		c.Abort() //阻止执行
 		return
 	}

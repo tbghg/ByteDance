@@ -12,13 +12,13 @@ const TableNameUser = "user"
 
 // User mapped from table <user>
 type User struct {
-	ID         int32     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
-	Username   string    `gorm:"column:username;not null" json:"username"`
-	Password   string    `gorm:"column:password;not null" json:"password"`
-	LoginTime  time.Time `gorm:"column:login_time" json:"login_time"`
-	Enable     int32     `gorm:"column:enable;default:1" json:"enable"`
-	CreateTime time.Time `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"create_time"`
-	Deleted    int32     `gorm:"column:deleted" json:"deleted"`
+	ID         int32     `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"` // PK，直接自增
+	Username   string    `gorm:"column:username;not null" json:"username"`          // UK，账号
+	Password   string    `gorm:"column:password;not null" json:"password"`          // 密码（MD5）
+	Enable     int32     `gorm:"column:enable;default:1" json:"enable"`             // 账号是否可用
+	Deleted    int32     `gorm:"column:deleted" json:"deleted"`                     // 删除标识位
+	LoginTime  time.Time `gorm:"column:login_time;default:CURRENT_TIMESTAMP" json:"login_time"`
+	CreateTime time.Time `gorm:"column:create_time;default:CURRENT_TIMESTAMP" json:"create_time"` // 注册时间
 }
 
 // TableName User's table name

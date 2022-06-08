@@ -6,6 +6,7 @@ package query
 
 import (
 	"context"
+	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -28,10 +29,10 @@ func newComment(db *gorm.DB) comment {
 	_comment.ID = field.NewInt32(tableName, "id")
 	_comment.UserID = field.NewInt32(tableName, "user_id")
 	_comment.VideoID = field.NewInt32(tableName, "video_id")
-	_comment.Content = field.NewString(tableName, "content")
 	_comment.CreateTime = field.NewTime(tableName, "create_time")
 	_comment.Removed = field.NewInt32(tableName, "removed")
 	_comment.Deleted = field.NewInt32(tableName, "deleted")
+	_comment.Content = field.NewString(tableName, "content")
 
 	_comment.fillFieldMap()
 
@@ -45,10 +46,10 @@ type comment struct {
 	ID         field.Int32
 	UserID     field.Int32
 	VideoID    field.Int32
-	Content    field.String
 	CreateTime field.Time
 	Removed    field.Int32
 	Deleted    field.Int32
+	Content    field.String
 
 	fieldMap map[string]field.Expr
 }
@@ -68,10 +69,10 @@ func (c *comment) updateTableName(table string) *comment {
 	c.ID = field.NewInt32(table, "id")
 	c.UserID = field.NewInt32(table, "user_id")
 	c.VideoID = field.NewInt32(table, "video_id")
-	c.Content = field.NewString(table, "content")
 	c.CreateTime = field.NewTime(table, "create_time")
 	c.Removed = field.NewInt32(table, "removed")
 	c.Deleted = field.NewInt32(table, "deleted")
+	c.Content = field.NewString(table, "content")
 
 	c.fillFieldMap()
 
@@ -92,10 +93,10 @@ func (c *comment) fillFieldMap() {
 	c.fieldMap["id"] = c.ID
 	c.fieldMap["user_id"] = c.UserID
 	c.fieldMap["video_id"] = c.VideoID
-	c.fieldMap["content"] = c.Content
 	c.fieldMap["create_time"] = c.CreateTime
 	c.fieldMap["removed"] = c.Removed
 	c.fieldMap["deleted"] = c.Deleted
+	c.fieldMap["content"] = c.Content
 }
 
 func (c comment) clone(db *gorm.DB) comment {
@@ -104,6 +105,24 @@ func (c comment) clone(db *gorm.DB) comment {
 }
 
 type commentDo struct{ gen.DO }
+
+//查询视频评论数目
+//
+//select count(1) from comment where video_id = @videoID and removed = 0 and deleted = 0
+func (c commentDo) QueryCommentCount(videoID int32) (result int64) {
+	params := make(map[string]interface{}, 0)
+
+	var generateSQL strings.Builder
+	params["videoID"] = videoID
+	generateSQL.WriteString("select count(1) from comment where video_id = @videoID and removed = 0 and deleted = 0 ")
+
+	if len(params) > 0 {
+		_ = c.UnderlyingDB().Raw(generateSQL.String(), params).Take(&result)
+	} else {
+		_ = c.UnderlyingDB().Raw(generateSQL.String()).Take(&result)
+	}
+	return
+}
 
 func (c commentDo) Debug() *commentDo {
 	return c.withDO(c.DO.Debug())
