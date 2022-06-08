@@ -32,9 +32,11 @@ func init() {
 
 func (*UserDaoStruct) IsUsernameExist(username string) (isExist bool) {
 	u := dal.ConnQuery.User
-	_, err := u.Where(u.Username.Eq(username)).Take()
-	isExist = !errors.Is(err, gorm.ErrRecordNotFound)
-	return isExist
+	count, _ := u.Where(u.Username.Eq(username), u.Deleted.Eq(0)).Count()
+	if count == 0 {
+		return false
+	}
+	return true
 }
 
 func (*UserDaoStruct) CreateUser(username string, password string) (int, error) {
@@ -48,10 +50,10 @@ func (*UserDaoStruct) CreateUser(username string, password string) (int, error) 
 
 func (*UserDaoStruct) CheckPassword(username string, password string) (id int, state int) {
 	u := dal.ConnQuery.User
-	user, err := u.Where(u.Username.Eq(username)).Take()
+	user, err := u.Where(u.Username.Eq(username), u.Deleted.Eq(0)).Take()
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		// 查询到存在相关记录
-		if user.Deleted == 0 && utils.Md5(password) == user.Password {
+		if utils.Md5(password) == user.Password {
 			// 密码正确
 			if user.Enable == 1 {
 				// 账号可以使用
@@ -72,33 +74,16 @@ func (*UserDaoStruct) CheckPassword(username string, password string) (id int, s
 	return id, state
 }
 
-func (*UserDaoStruct) QueryUsernameByID(userID int32) (username string, isExist bool) {
+func (*UserDaoStruct) QueryUserInfoByID(userID int32) (username string, followCount int64, followerCount int64, isExist bool) {
 	u := dal.ConnQuery.User
 	user, err := u.Select(u.Username).Where(u.ID.Eq(userID)).Take()
 	isExist = !errors.Is(err, gorm.ErrRecordNotFound)
-	if isExist == false {
-		return "", isExist
+	if !isExist {
+		return "", 0, 0, isExist
 	} else {
-		return user.Username, isExist
+		f := dal.ConnQuery.Follow
+		followCount = f.QueryFollowCount(userID)
+		followerCount = f.QueryFollowerCount(userID)
+		return user.Username, followCount, followerCount, isExist
 	}
-}
-
-func (*UserDaoStruct) QueryFollowCount(userID int32) (followerCount int64, followCount int64, success bool) {
-	// follower_count 粉丝数	follow_count 关注数
-	var err error
-	f := dal.ConnQuery.Follow
-
-	followerCount, err = f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userID)).Count()
-	utils.CatchErr("查询粉丝数错误", err)
-	if err != nil {
-		return 0, 0, false
-	}
-
-	followCount, err = f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.FunID.Eq(userID)).Count()
-	utils.CatchErr("查询关注数错误", err)
-	if err != nil {
-		return 0, 0, false
-	}
-
-	return followerCount, followCount, true
 }

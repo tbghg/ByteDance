@@ -5,10 +5,8 @@ import (
 	"ByteDance/cmd/user/service"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
 )
 
 // 用户登录返回值
@@ -92,31 +90,24 @@ func LoginUser(c *gin.Context) {
 }
 
 func GetUserInfo(c *gin.Context) {
-	userIDStr := c.Query("user_id")
-	token := c.Query("token")
-	userID, err := strconv.ParseInt(userIDStr, 10, 32)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, getUserInfoResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+
+	userID, success := c.Get("user_id")
+	if !success {
+		c.JSON(http.StatusOK,
+			common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.TokenParameterAcquisitionError,
+			})
 		return
 	}
-
-	fmt.Println(token) // token 暂时不管了，等中间件了
-
 	// 根据userID查询用户名 获取关注数、粉丝数
-	userInfoData, state := service.GetUserInfo(int32(userID))
+	userInfoData, success2 := service.GetUserInfo(int32(userID.(int)))
 	// state 0:userID不存在  1:查询成功  -1:查询失败
-	if state == 0 {
+	if !success2 {
 		c.JSON(http.StatusOK, &getUserInfoResponse{
 			Response: common.Response{
 				StatusCode: -1,
 				StatusMsg:  msg.UserIDNotExistMsg,
-			},
-		})
-	} else if state == -1 {
-		c.JSON(http.StatusOK, &getUserInfoResponse{
-			Response: common.Response{
-				StatusCode: -1,
-				StatusMsg:  msg.GetUserInfoFailedMsg,
 			},
 		})
 	} else {
