@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ByteDance/dal/method"
 	"ByteDance/pkg/common"
 	"gorm.io/driver/mysql"
 	"gorm.io/gen"
@@ -18,13 +19,13 @@ func main() {
 	})
 	g.UseDB(db)
 
-	// 如果想要自定义方法就在ByteDance/dal/model/method.go中添加相应的接口及实现，如下
-	// g.ApplyInterface(func(method model.UserMethod) {},g.GenerateModel("user"))
-
 	g.ApplyBasic(g.GenerateModel("user"))
 	g.ApplyBasic(g.GenerateModel("video"))
-	g.ApplyBasic(g.GenerateModel("favorite"))
-	g.ApplyBasic(g.GenerateModel("comment"))
-	g.ApplyBasic(g.GenerateModel("follow"))
+	g.ApplyInterface(func(method method.FavoriteMethod) {}, g.GenerateModel("favorite"))
+	g.ApplyInterface(func(method method.CommentMethod) {}, g.GenerateModel("comment"))
+	g.ApplyInterface(func(method method.FollowMethod) {}, g.GenerateModel("follow"))
+	//g.ApplyBasic(g.GenerateModel("favorite"))
+	//g.ApplyBasic(g.GenerateModel("follow"))
+	//g.ApplyBasic(g.GenerateModel("comment"))
 	g.Execute()
 }
