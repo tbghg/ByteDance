@@ -5,7 +5,6 @@ import (
 	"ByteDance/dal/model"
 	"ByteDance/utils"
 	"sync"
-	"time"
 )
 
 type VideoInfo struct {
@@ -16,7 +15,7 @@ type VideoInfo struct {
 	CoverURL      string
 	FavoriteCount int
 	IsFavorite    bool
-	Time          time.Time
+	Time          int32
 	Title         string
 }
 
@@ -34,7 +33,7 @@ func init() {
 	})
 }
 
-func (*VideoDaoStruct) GetVideoFeed(lastTime time.Time) ([]VideoInfo, bool) {
+func (*VideoDaoStruct) GetVideoFeed(lastTime int32) ([]VideoInfo, bool) {
 	v := dal.ConnQuery.Video
 	u := dal.ConnQuery.User
 	var result []VideoInfo
@@ -47,6 +46,17 @@ func (*VideoDaoStruct) GetVideoFeed(lastTime time.Time) ([]VideoInfo, bool) {
 		return nil, false
 	}
 	return result, true
+}
+
+func (*VideoDaoStruct) GetVideoInfo(userID int32, videoID int32) (followerCount int64, followCount int64, commentCount int64, favoriteCount int64) {
+	f := dal.ConnQuery.Follow
+	c := dal.ConnQuery.Comment
+	favorite := dal.ConnQuery.Favorite
+	followerCount = f.QueryFollowerCount(userID)
+	followCount = f.QueryFollowCount(userID)
+	commentCount = c.QueryCommentCount(videoID)
+	favoriteCount = favorite.QueryFavoriteCount(videoID)
+	return followerCount, followCount, commentCount, favoriteCount
 }
 
 func (*VideoDaoStruct) GetVideoList(userID int) ([]VideoInfo, bool) {
