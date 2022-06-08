@@ -29,7 +29,7 @@ type videoListResponse struct {
 
 // GetVideoFeed 获取视频流信息
 func GetVideoFeed(c *gin.Context) {
-	lastTime, _ := strconv.ParseInt(c.Query("last_time"), 10, 64)
+	lastTime, _ := strconv.ParseInt(c.Query("last_time"), 10, 32)
 	// 获取视频信息不需要token
 	if lastTime == 0 {
 		lastTime = time.Now().Unix()
@@ -104,17 +104,18 @@ func PublishVideo(c *gin.Context) {
 
 // PublicList 登录用户的视频发布列表，直接列出用户所有投稿过的视频
 func PublicList(c *gin.Context) {
-	userIDStr := c.Query("user_id")
-	userID, err := strconv.Atoi(userIDStr)
-	if err != nil {
+
+	userID, success := c.Get("user_id")
+	if !success {
 		c.JSON(http.StatusOK,
 			common.Response{
 				StatusCode: -1,
-				StatusMsg:  msg.DataFormatErrorMsg,
+				StatusMsg:  msg.TokenParameterAcquisitionError,
 			})
+		return
 	}
-	videoInfo, success := service.PublishList(userID)
-	if success {
+	videoInfo, success2 := service.PublishList(userID.(int))
+	if success2 {
 		c.JSON(http.StatusOK, &videoListResponse{
 			Response: common.Response{
 				StatusCode: 0,
