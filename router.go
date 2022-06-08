@@ -1,11 +1,12 @@
 package main
 
 import (
-	commentController "ByteDance/cmd/comment/controller"
 	favoriteController "ByteDance/cmd/favorite/controller"
 	relationController "ByteDance/cmd/follow/controller"
 	userController "ByteDance/cmd/user/controller"
 	videoController "ByteDance/cmd/video/controller"
+
+	commentController "ByteDance/cmd/comment/controller"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/middleware"
 	"github.com/gin-gonic/gin"
@@ -13,8 +14,7 @@ import (
 )
 
 func initRouter(r *gin.Engine) {
-	// 注册翻译器
-	_ = zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
+	r.Use(middleware.RateMiddleware)
 	// GRoute总路由组
 	GRoute := r.Group("/douyin")
 	{
@@ -26,7 +26,7 @@ func initRouter(r *gin.Engine) {
 			user.GET("/", middleware.JwtMiddleware("query"), userController.GetUserInfo)
 		}
 		//follow路由组
-		relation := GRoute.Group("/relation")
+		relation := GRoute.Group("relation")
 		{
 			relation.POST("/action/", relationController.RelationAction)
 			relation.GET("/follow/list/", relationController.FollowList)
@@ -44,14 +44,17 @@ func initRouter(r *gin.Engine) {
 		publish := GRoute.Group("/publish")
 		{
 			publish.POST("/action/", middleware.JwtMiddleware("form-data"), videoController.PublishVideo)
-			publish.GET("/list/", middleware.JwtMiddleware("query"), videoController.PublicList)
+			//publish.GET("/list/", middleware.JwtMiddleware("query"),)
 		}
 		//comment路由组
 		comment := GRoute.Group("/comment").Use(middleware.JwtMiddleware("query"))
 		{
+
 			comment.POST("/action/", commentController.CommentAction)
 			comment.GET("/list/", commentController.CommentList)
 		}
 
 	}
+	// 注册翻译器
+	_ = zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
 }
