@@ -13,6 +13,8 @@ import (
 )
 
 func initRouter(r *gin.Engine) {
+	// 注册翻译器
+	_ = zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
 	// GRoute总路由组
 	GRoute := r.Group("/douyin")
 	{
@@ -21,10 +23,10 @@ func initRouter(r *gin.Engine) {
 		{
 			user.POST("/register/", userController.RegisterUser)
 			user.POST("/login/", userController.LoginUser)
-			user.GET("/", userController.GetUserInfo)
+			user.GET("/", middleware.JwtMiddleware("query"), userController.GetUserInfo)
 		}
 		//follow路由组
-		relation := GRoute.Group("relation")
+		relation := GRoute.Group("/relation")
 		{
 			relation.POST("/action/", relationController.RelationAction)
 			relation.GET("/follow/list/", relationController.FollowList)
@@ -52,6 +54,4 @@ func initRouter(r *gin.Engine) {
 		}
 
 	}
-	// 注册翻译器
-	_ = zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
 }
