@@ -1,12 +1,10 @@
 package controller
 
 import (
-	"ByteDance/cmd/favorite/repository"
 	"ByteDance/cmd/favorite/service"
 	"ByteDance/cmd/video"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
-	"ByteDance/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -37,20 +35,6 @@ type FavoriteListRequest struct {
 }
 
 //点赞操作
-func favoriteAction(userId int32, videoId int32) (err error) {
-	//更新 如果数据库没有该数据则返回IsExist = 0
-	IsExist := repository.FavoriteDao.FavoriteUpdate(userId, videoId)
-
-	if IsExist == 0 {
-		//添加该数据
-		err = repository.FavoriteDao.FavoriteCreate(userId, videoId)
-		utils.CatchErr("添加失败", err)
-	}
-
-	return err
-}
-
-//点赞操作
 func FavoriteAction(c *gin.Context) {
 	var r FavoriteActionRequest
 	// 接收参数并绑定
@@ -69,7 +53,7 @@ func FavoriteAction(c *gin.Context) {
 		}
 	}
 
-	err = favoriteAction(int32(UserId), int32(r.VideoId))
+	err = service.FavoriteAction(int32(UserId), int32(r.VideoId))
 
 	if err != nil {
 		c.JSON(http.StatusOK, FavoriteActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.FavoriteFailedMsg}})

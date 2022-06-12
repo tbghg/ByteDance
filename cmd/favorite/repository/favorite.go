@@ -35,7 +35,7 @@ func (*FavoriteStruct) FavoriteUpdate(userId int32, videoId int32) (RowsAffected
 
 	favorite := &model.Favorite{UserID: userId, VideoID: videoId}
 
-	row, err := f.Where(f.UserID.Eq(favorite.UserID), f.VideoID.Eq(favorite.VideoID)).Update(f.Removed, common.Removed)
+	row, err := f.Where(f.UserID.Eq(favorite.UserID), f.VideoID.Eq(favorite.VideoID), f.Removed.Eq(common.Favorite)).Update(f.Removed, common.Removed)
 
 	utils.CatchErr("更新错误", err)
 
@@ -61,8 +61,8 @@ func (*FavoriteStruct) FavoriteList(userId int32) ([]videoRepository.VideoInfo, 
 
 	var result []videoRepository.VideoInfo
 	// 内联查询
-	err := f.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(f.UserID.Eq(userId), f.Removed.Eq(0), f.Deleted.Eq(0)).Join(v, v.ID.EqCol(f.VideoID)).Join(u, u.ID.EqCol(v.AuthorID)).Scan(&result)
-	utils.CatchErr("获取视频信息错误", err)
+	err := f.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(f.UserID.Eq(userId), f.Removed.Eq(common.Favorite), f.Deleted.Eq(common.Favorite)).Join(v, v.ID.EqCol(f.VideoID)).Join(u, u.ID.EqCol(v.AuthorID)).Order(f.ID.Desc()).Scan(&result)
+	utils.CatchErr("获取点赞列表错误", err)
 	if result == nil {
 		return nil, false
 
