@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.4+incompatible
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
+	github.com/dlclark/regexp2 v1.4.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
