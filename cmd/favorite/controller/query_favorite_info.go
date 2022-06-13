@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"ByteDance/cmd/favorite/repository"
 	"ByteDance/cmd/favorite/service"
 	"ByteDance/cmd/video"
 	"ByteDance/pkg/common"
@@ -56,7 +57,7 @@ func FavoriteAction(c *gin.Context) {
 		}
 	}
 
-	success = repository.FavoriteDao.FavoriteAction(int32(userID), int32(r.VideoId))
+	success = repository.FavoriteDao.FavoriteAction(int32(userID), int32(r.VideoId), r.ActionType)
 
 	if !success {
 		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.FavoriteFailedMsg})
