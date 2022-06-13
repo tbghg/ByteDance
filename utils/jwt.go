@@ -28,7 +28,7 @@ func GenToken(id int) (string, error) {
 		ID: id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    common.Issuer,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(common.TokenExpirationTime)), // 过期时间2小时
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(common.TokenExpirationTime)), // 过期时间
 			IssuedAt:  jwt.NewNumericDate(time.Now()),                                 // 签发时间
 			NotBefore: jwt.NewNumericDate(time.Now()),                                 // 生效时间
 		}}
