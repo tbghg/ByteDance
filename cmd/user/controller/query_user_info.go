@@ -7,6 +7,7 @@ import (
 	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 // 用户登录返回值
@@ -90,20 +91,12 @@ func LoginUser(c *gin.Context) {
 }
 
 func GetUserInfo(c *gin.Context) {
-
-	userID, success := c.Get("user_id")
-	if !success {
-		c.JSON(http.StatusOK,
-			common.Response{
-				StatusCode: -1,
-				StatusMsg:  msg.TokenParameterAcquisitionError,
-			})
-		return
-	}
+	userIDStr := c.Query("user_id")
+	userID, _ := strconv.ParseInt(userIDStr, 10, 32)
 	// 根据userID查询用户名 获取关注数、粉丝数
-	userInfoData, success2 := service.GetUserInfo(int32(userID.(int)))
+	userInfoData, success := service.GetUserInfo(int32(userID))
 	// state 0:userID不存在  1:查询成功  -1:查询失败
-	if !success2 {
+	if !success {
 		c.JSON(http.StatusOK, &getUserInfoResponse{
 			Response: common.Response{
 				StatusCode: -1,
