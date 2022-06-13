@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
-	"strconv"
 )
 
 // RelationActionResponse 关注操作返回值
@@ -22,7 +21,6 @@ type FollowListResponse struct {
 	UserList []follow.User `json:"user_list"`
 }
 
-// RelationAction 关注操作
 //关注与取消请求
 type FollowActionRequest struct {
 	Token      string `form:"token"        validate:"required,jwt"`
@@ -112,7 +110,6 @@ func FollowerList(c *gin.Context) {
 		}
 	}
 
-	UserList, err := service.GetFollowerListById(int64(userId))
 	UserList, err := service.GetFollowerListById(r.UserId)
 
 	if err == nil {

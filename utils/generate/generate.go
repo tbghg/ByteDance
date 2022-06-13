@@ -24,8 +24,5 @@ func main() {
 	g.ApplyInterface(func(method method.FavoriteMethod) {}, g.GenerateModel("favorite"))
 	g.ApplyInterface(func(method method.CommentMethod) {}, g.GenerateModel("comment"))
 	g.ApplyInterface(func(method method.FollowMethod) {}, g.GenerateModel("follow"))
-	//g.ApplyBasic(g.GenerateModel("favorite"))
-	//g.ApplyBasic(g.GenerateModel("follow"))
-	//g.ApplyBasic(g.GenerateModel("comment"))
 	g.Execute()
 }

@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-//接收comment表返回数据
+// CommentInfo 接收comment表返回数据
 type CommentInfo struct {
 	ID            int32
 	UserID        int32
@@ -33,7 +33,7 @@ func init() {
 	})
 }
 
-//取消评论
+// CommentUpdate 取消评论
 func (*CommentStruct) CommentUpdate(commentId int32) (RowsAffected int64) {
 	c := dal.ConnQuery.Comment
 
@@ -46,7 +46,7 @@ func (*CommentStruct) CommentUpdate(commentId int32) (RowsAffected int64) {
 	return row.RowsAffected
 }
 
-//评论操作
+// CommentCreate 评论操作
 func (*CommentStruct) CommentCreate(userId int32, videoId int32, commentText string) (err error) {
 	c := dal.ConnQuery.Comment
 
@@ -57,7 +57,7 @@ func (*CommentStruct) CommentCreate(userId int32, videoId int32, commentText str
 	return err
 }
 
-//评论列表
+// CommentList 评论列表
 func (*CommentStruct) CommentList(videoId int32) ([]CommentInfo, bool) {
 	c := dal.ConnQuery.Comment
 	u := dal.ConnQuery.User
