@@ -1,6 +1,7 @@
 package common
 
 import (
+	"github.com/dlclark/regexp2"
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
@@ -45,3 +46,14 @@ const Removed = 1
 
 //redis
 var RedisDb *redis.Client
+
+//密码强度检测
+func MatchStr(str string) bool {
+	expr := `^(?![0-9a-zA-Z]+$)(?![a-zA-Z!@#$%^&*]+$)(?![0-9!@#$%^&*]+$)[0-9A-Za-z!@#$%^&*]{8,32}$`
+	reg, _ := regexp2.Compile(expr, 0)
+	m, _ := reg.FindStringMatch(str)
+	if m != nil {
+		return true
+	}
+	return false
+}

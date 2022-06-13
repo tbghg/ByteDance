@@ -48,6 +48,18 @@ func RegisterUser(c *gin.Context) {
 			return
 		}
 	}
+	//密码强度检测
+	match := common.MatchStr(r.Password)
+	if !match || len(r.Username) > 32 {
+		c.JSON(http.StatusOK, regUserResponse{
+			Response: common.Response{
+				StatusCode: -1,
+				StatusMsg:  msg.MatchFailedStatusMsg,
+			},
+		})
+		return
+	}
+
 	regUserData, isExist := service.RegUser(r.Username, r.Password)
 	if isExist {
 		c.JSON(http.StatusOK, regUserResponse{
