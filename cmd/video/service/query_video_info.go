@@ -8,14 +8,12 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"sync"
 )
 
-func GetVideoFeed(lastTime int64) (nextTime int64, videoInfo []video.TheVideoInfo, state int) {
+func GetVideoFeed(lastTime int64, userID int32) (nextTime int64, videoInfo []video.TheVideoInfo, state int) {
 	// state 0:已经没有视频了  1:获取成功  -1:获取失败
-	//stringLastTime := time.Unix(lastTime, 0).Format("2006-01-02 15:04:05")
-	//formatLastTime, _ := time.ParseInLocation("2006-01-02 15:04:05", stringLastTime, time.Local)
 
-	// 不太清楚时区的情况
 	allVideoInfoData, isExist := repository.VideoDao.GetVideoFeed(int32(lastTime))
 
 	if !isExist {
@@ -26,29 +24,35 @@ func GetVideoFeed(lastTime int64) (nextTime int64, videoInfo []video.TheVideoInf
 	nextTime = int64(allVideoInfoData[len(allVideoInfoData)-1].Time)
 	videoInfo = make([]video.TheVideoInfo, len(allVideoInfoData))
 
-	// 这里换成并发，IsFavorite需要完善
+	wg := sync.WaitGroup{}
+	wg.Add(len(allVideoInfoData))
+
 	for index, videoInfoData := range allVideoInfoData {
+		go func(index int, videoInfo []video.TheVideoInfo, videoInfoData repository.VideoInfo, userID int32) {
+			followerCount, followCount, commentCount, favoriteCount := repository.VideoDao.GetVideoInfo(videoInfoData.UserID, videoInfoData.VideoID)
+			isFavorite := repository.VideoDao.QueryIsFavorite(userID, videoInfoData.VideoID)
+			isFollow := repository.VideoDao.QueryIsFollow(userID, videoInfoData.UserID)
 
-		followerCount, followCount, commentCount, favoriteCount := repository.VideoDao.GetVideoInfo(videoInfoData.UserID, videoInfoData.VideoID)
-
-		videoInfo[index] = video.TheVideoInfo{
-			ID: videoInfoData.VideoID,
-			Author: video.AuthorInfo{
-				ID:            videoInfoData.UserID,
-				Name:          videoInfoData.Username,
-				FollowCount:   int(followCount),
-				FollowerCount: int(followerCount),
-				IsFollow:      false,
-			},
-			PlayURL:       common.OSSPreURL + videoInfoData.PlayURL + ".mp4",
-			CoverURL:      common.OSSPreURL + videoInfoData.CoverURL + ".jpg",
-			FavoriteCount: int(favoriteCount),
-			CommentCount:  int(commentCount),
-			IsFavorite:    false,
-			Title:         videoInfoData.Title,
-		}
+			videoInfo[index] = video.TheVideoInfo{
+				ID: videoInfoData.VideoID,
+				Author: video.AuthorInfo{
+					ID:            videoInfoData.UserID,
+					Name:          videoInfoData.Username,
+					FollowCount:   int(followCount),
+					FollowerCount: int(followerCount),
+					IsFollow:      isFollow,
+				},
+				PlayURL:       common.OSSPreURL + videoInfoData.PlayURL + ".mp4",
+				CoverURL:      common.OSSPreURL + videoInfoData.CoverURL + ".jpg",
+				FavoriteCount: int(favoriteCount),
+				CommentCount:  int(commentCount),
+				IsFavorite:    isFavorite,
+				Title:         videoInfoData.Title,
+			}
+			wg.Done()
+		}(index, videoInfo, videoInfoData, userID)
 	}
-
+	wg.Wait()
 	return nextTime, videoInfo, 1
 }
 
@@ -83,33 +87,38 @@ func PublishVideo(userID int, title string, fileBytes []byte) bool {
 
 }
 
-func PublishList(userID int) (videoInfo []video.TheVideoInfo, success bool) {
+func PublishList(userID int32) (videoInfo []video.TheVideoInfo, success bool) {
 
 	videoInfoDataList, _ := repository.VideoDao.GetVideoList(userID)
 
 	videoInfo = make([]video.TheVideoInfo, len(videoInfoDataList))
 
+	wg := sync.WaitGroup{}
+	wg.Add(len(videoInfoDataList))
+
 	for index, videoInfoData := range videoInfoDataList {
-
-		followerCount, followCount, commentCount, favoriteCount := repository.VideoDao.GetVideoInfo(videoInfoData.UserID, videoInfoData.VideoID)
-
-		videoInfo[index] = video.TheVideoInfo{
-			ID: videoInfoData.VideoID,
-			Author: video.AuthorInfo{
-				ID:            videoInfoData.UserID,
-				Name:          videoInfoData.Username,
-				FollowCount:   int(followCount),
-				FollowerCount: int(followerCount),
-				IsFollow:      false,
-			},
-			PlayURL:       common.OSSPreURL + videoInfoData.PlayURL + ".mp4",
-			CoverURL:      common.OSSPreURL + videoInfoData.CoverURL + ".jpg",
-			FavoriteCount: int(favoriteCount),
-			CommentCount:  int(commentCount),
-			IsFavorite:    false,
-			Title:         videoInfoData.Title,
-		}
+		go func(index int, videoInfo []video.TheVideoInfo, videoInfoData repository.VideoInfo) {
+			followerCount, followCount, commentCount, favoriteCount := repository.VideoDao.GetVideoInfo(videoInfoData.UserID, videoInfoData.VideoID)
+			isFavorite := repository.VideoDao.QueryIsFavorite(videoInfoData.UserID, videoInfoData.VideoID)
+			videoInfo[index] = video.TheVideoInfo{
+				ID: videoInfoData.VideoID,
+				Author: video.AuthorInfo{
+					ID:            videoInfoData.UserID,
+					Name:          videoInfoData.Username,
+					FollowCount:   int(followCount),
+					FollowerCount: int(followerCount),
+					IsFollow:      false,
+				},
+				PlayURL:       common.OSSPreURL + videoInfoData.PlayURL + ".mp4",
+				CoverURL:      common.OSSPreURL + videoInfoData.CoverURL + ".jpg",
+				FavoriteCount: int(favoriteCount),
+				CommentCount:  int(commentCount),
+				IsFavorite:    isFavorite,
+				Title:         videoInfoData.Title,
+			}
+			wg.Done()
+		}(index, videoInfo, videoInfoData)
 	}
-
+	wg.Wait()
 	return videoInfo, true
 }

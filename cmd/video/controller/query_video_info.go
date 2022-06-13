@@ -30,12 +30,19 @@ type videoListResponse struct {
 // GetVideoFeed 获取视频流信息
 func GetVideoFeed(c *gin.Context) {
 	lastTime, _ := strconv.ParseInt(c.Query("last_time"), 10, 32)
-	// 获取视频信息不需要token
+	userIDInterface, success := c.Get("user_id")
+	var userID int32
+	if success {
+		userID = int32(userIDInterface.(int))
+	} else {
+		userID = 0
+	}
+
 	if lastTime == 0 {
 		lastTime = time.Now().Unix()
 	}
 	// 需要获取NextTime、VideoList
-	nextTime, videoInfo, state := service.GetVideoFeed(lastTime)
+	nextTime, videoInfo, state := service.GetVideoFeed(lastTime, userID)
 	if state == 0 {
 		c.JSON(http.StatusOK, &getVideoResponse{
 			Response: common.Response{
@@ -105,16 +112,9 @@ func PublishVideo(c *gin.Context) {
 // PublicList 登录用户的视频发布列表，直接列出用户所有投稿过的视频
 func PublicList(c *gin.Context) {
 
-	userID, success := c.Get("user_id")
-	if !success {
-		c.JSON(http.StatusOK,
-			common.Response{
-				StatusCode: -1,
-				StatusMsg:  msg.TokenParameterAcquisitionError,
-			})
-		return
-	}
-	videoInfo, success2 := service.PublishList(userID.(int))
+	userIDStr := c.Query("user_id")
+	userID, _ := strconv.ParseInt(userIDStr, 10, 32)
+	videoInfo, success2 := service.PublishList(int32(userID))
 	if success2 {
 		c.JSON(http.StatusOK, &videoListResponse{
 			Response: common.Response{

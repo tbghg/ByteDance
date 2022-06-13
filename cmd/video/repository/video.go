@@ -59,12 +59,32 @@ func (*VideoDaoStruct) GetVideoInfo(userID int32, videoID int32) (followerCount 
 	return followerCount, followCount, commentCount, favoriteCount
 }
 
-func (*VideoDaoStruct) GetVideoList(userID int) ([]VideoInfo, bool) {
+func (*VideoDaoStruct) QueryIsFavorite(userID int32, videoID int32) bool {
+	f := dal.ConnQuery.Favorite
+	count, _ := f.Where(f.UserID.Eq(userID), f.VideoID.Eq(videoID), f.Removed.Eq(0), f.Deleted.Eq(0)).Count()
+	if count == 0 {
+		return false
+	} else {
+		return true
+	}
+}
+
+func (*VideoDaoStruct) QueryIsFollow(userID int32, authorID int32) bool {
+	f := dal.ConnQuery.Follow
+	count, _ := f.Where(f.UserID.Eq(authorID), f.Removed.Eq(0), f.Deleted.Eq(0), f.FunID.Eq(userID)).Count()
+	if count == 0 {
+		return false
+	} else {
+		return true
+	}
+}
+
+func (*VideoDaoStruct) GetVideoList(userID int32) ([]VideoInfo, bool) {
 	v := dal.ConnQuery.Video
 	u := dal.ConnQuery.User
 	var result []VideoInfo
 	// 内联查询
-	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.AuthorID.Eq(int32(userID)), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Limit(10).Scan(&result)
+	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.AuthorID.Eq(userID), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Scan(&result)
 	if !utils.CatchErr("获取视频信息错误", err) {
 		return nil, false
 	}
