@@ -24,14 +24,27 @@ func init() {
 }
 
 // FavoriteAction 更新点赞操作
-func (*FavoriteStruct) FavoriteAction(userId int32, videoId int32) (success bool) {
+func (*FavoriteStruct) FavoriteAction(userId int32, videoId int32, actionType int32) (success bool) {
 	f := dal.ConnQuery.Favorite
-	rowsAffected, _ := f.UpdateFavoriteRemoved(userId, videoId)
-	if rowsAffected == 0 {
+	var removed int32
+	if actionType == 1 {
+		removed = -1
+	} else {
+		removed = 1
+	}
+
+	count, _ := f.Where(f.UserID.Eq(userId), f.VideoID.Eq(videoId), f.Deleted.Eq(0)).Count()
+
+	if count == 0 {
 		// 不存在相关记录，需要进行创建
 		favorite := &model.Favorite{UserID: userId, VideoID: videoId}
 		err := f.Create(favorite)
 		if !utils.CatchErr("添加favorite错误", err) {
+			return false
+		}
+	} else {
+		_, err := f.Where(f.UserID.Eq(userId), f.VideoID.Eq(videoId), f.Deleted.Eq(0)).Update(f.Removed, removed)
+		if err != nil {
 			return false
 		}
 	}
