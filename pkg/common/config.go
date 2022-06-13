@@ -4,6 +4,13 @@ import "time"
 
 const MySqlDSN = "byte_dance:7efftEaAtzjEwfT4@tcp(106.15.107.229:3306)/byte_dance?charset=utf8mb4&parseTime=True&loc=Local"
 
+// Redis 配置
+const (
+	RedisLocalhost = "localhost:6379"
+	RedisPassword  = ""
+	RedisDB        = 0
+)
+
 // MD5Salt MD5加密时的盐
 const MD5Salt = "UII34HJ6OIO"
 

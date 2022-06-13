@@ -34,12 +34,12 @@ func getQueryConnection() *query.Query {
 // RedisDb redis
 var RedisDb *redis.Client
 
-// 连接到redis
+// InitClient 连接到redis
 func InitClient() (err error) {
 	RedisDb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // redis地址
-		Password: "",               // redis密码，没有则留空
-		DB:       0,                // 默认数据库，默认是0
+		Addr:     common.RedisLocalhost, // redis地址
+		Password: common.RedisPassword,  // redis密码，没有则留空
+		DB:       common.RedisDB,        // 默认数据库，默认是0
 	})
 
 	//通过 *redis.Client.Ping() 来检查是否成功连接到了redis服务器
