@@ -6,6 +6,7 @@ import (
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
 )
@@ -22,27 +23,47 @@ type FollowListResponse struct {
 }
 
 // RelationAction 关注操作
+//关注与取消请求
+type FollowActionRequest struct {
+	Token      string `form:"token"        validate:"required,jwt"`
+	ToUserId   int64  `form:"to_user_id"   validate:"required,numeric,min=1"`
+	ActionType int32  `form:"action_type"  validate:"required,numeric,oneof=1 2"`
+}
+
+//关注、粉丝列表请求
+type ListRequest struct {
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
+}
+
+/**
+关注操作
+*/
 func RelationAction(c *gin.Context) {
-	userIdStr := c.Query("user_id")
-	toUserIdStr := c.Query("to_user_id")
-	actionTypeStr := c.Query("action_type")
+	var r FollowActionRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	//获取token中的userid
+	value, _ := c.Get("user_id")
+	UserId, _ := value.(int)
 
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
-	toUserId, err := strconv.ParseInt(toUserIdStr, 10, 64)
-	actionType, err2 := strconv.ParseInt(actionTypeStr, 10, 64)
-
-	if err != nil || err2 != nil {
-		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
-		return
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
+	if err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
 	}
 
-	err = service.RelationAction(int32(userId), int32(toUserId), int32(actionType))
+	err = service.RelationAction(int32(UserId), int32(r.ToUserId), int32(r.ActionType))
 
 	if err != nil {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1}})
 		return
 	}
-	if actionType == 1 {
+	if r.ActionType == 1 {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
 	} else {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFollowSuccessMsg}})
@@ -51,9 +72,20 @@ func RelationAction(c *gin.Context) {
 
 // FollowList 获取登录用户关注的所有用户列表
 func FollowList(c *gin.Context) {
-	userIdStr := c.Query("user_id")
-	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
-	UserList, err := service.GetFollowListById(int64(userId))
+	var r ListRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
+	if err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
+	}
+
+	UserList, err := service.GetFollowListById(r.UserId)
 
 	if err == nil {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
@@ -67,10 +99,21 @@ func FollowList(c *gin.Context) {
 
 // FollowerList 获取登录用户关注的粉丝用户列表
 func FollowerList(c *gin.Context) {
-	userIdStr := c.Query("user_id")
-	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
+	var r ListRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
+	if err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
+	}
 
 	UserList, err := service.GetFollowerListById(int64(userId))
+	UserList, err := service.GetFollowerListById(r.UserId)
 
 	if err == nil {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"ByteDance/cmd/favorite/repository"
 	"ByteDance/cmd/favorite/service"
 	"ByteDance/cmd/video"
 	"ByteDance/pkg/common"
@@ -19,15 +18,15 @@ type FavoriteListResponse struct {
 
 // FavoriteActionRequest 点赞与取消请求
 type FavoriteActionRequest struct {
-	Token      string `form:"token" validate:"required"`
-	VideoId    int64  `form:"video_id" validate:"required,numeric"`
-	ActionType int32  `form:"action_type" validate:"required,numeric"`
+	Token      string `form:"token"        validate:"required,jwt"`
+	VideoId    int64  `form:"video_id"     validate:"required,numeric,min=1"`
+	ActionType int32  `form:"action_type"  validate:"required,numeric,oneof=1 2"`
 }
 
 // FavoriteListRequest 点赞列表请求
 type FavoriteListRequest struct {
-	UserId int64  `form:"user_id" validate:"required,numeric"`
-	Token  string `form:"token" validate:"required"`
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
 }
 
 // FavoriteAction 点赞操作

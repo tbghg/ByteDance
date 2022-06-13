@@ -5,10 +5,10 @@ import (
 	"ByteDance/pkg/msg"
 	"ByteDance/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"time"
+	"github.com/go-redis/redis"
 )
 
 var mySecret = []byte(common.MySecret)
@@ -90,9 +90,10 @@ func InitClient() (err error) {
 }
 
 // RateMiddleware ip限流中间件
+// ip限流中间件
 func RateMiddleware(c *gin.Context) {
-	// 10 秒刷新key为IP(c.ClientIP())的r值为0
-	err := redisDb.SetNX(c.ClientIP(), 0, 10*time.Second).Err()
+	// 1 秒刷新key为IP(c.ClientIP())的r值为0
+	err := redisDb.SetNX(c.ClientIP(), 0, 1*time.Second).Err()
 
 	// 每次访问，这个IP的对应的值加一
 	redisDb.Incr(c.ClientIP())
@@ -106,8 +107,8 @@ func RateMiddleware(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	// 如果大于100次，返回403
-	if val > 100 {
+	// 如果大于20次，返回403
+	if val > 20 {
 		c.Abort()
 		c.JSON(http.StatusForbidden, common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg})
 		return

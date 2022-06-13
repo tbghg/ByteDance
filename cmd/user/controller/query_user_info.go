@@ -6,6 +6,7 @@ import (
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"strconv"
 )
@@ -28,11 +29,27 @@ type getUserInfoResponse struct {
 	User user.GetUserInfoData `json:"user"`
 }
 
+//注册 登录请求
+type RegisterLoginRequest struct {
+	Username string `form:"username"  validate:"required"`
+	Password string `form:"password"  validate:"required"`
+}
+
 // RegisterUser 注册用户
 func RegisterUser(c *gin.Context) {
-	username := c.Query("username")
-	password := c.Query("password")
-	regUserData, isExist := service.RegUser(username, password)
+	var r RegisterLoginRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
+	if err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, regUserResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
+	}
+	regUserData, isExist := service.RegUser(r.Username, r.Password)
 	if isExist {
 		c.JSON(http.StatusOK, regUserResponse{
 			Response: common.Response{
@@ -55,10 +72,20 @@ func RegisterUser(c *gin.Context) {
 }
 
 func LoginUser(c *gin.Context) {
-	username := c.Query("username")
-	password := c.Query("password")
+	var r RegisterLoginRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
+	if err != nil {
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, loginResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
+	}
 	// state 1:登陆成功 0:账号或密码错误 -1:账号已被冻结
-	loginData, state := service.LoginUser(username, password)
+	loginData, state := service.LoginUser(r.Username, r.Password)
 	if state == 1 {
 		// 登陆成功
 		c.JSON(http.StatusOK, loginResponse{

@@ -69,4 +69,10 @@ const (
 const (
 	DataFormatErrorMsg     = "数据格式错误"
 	RequestTooFastErrorMsg = "请求速度过快"
+	DataFormatErrorMsg = "请求数据缺失或格式错误"
+)
+
+//IP限速
+const (
+	RequestTooFastErrorMsg = "请求过快，稍后再试"
 )

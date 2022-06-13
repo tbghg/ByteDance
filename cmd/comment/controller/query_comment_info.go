@@ -23,17 +23,17 @@ type CommentListResponse struct {
 
 //评论与取消请求
 type CommentActionRequest struct {
-	Token       string `form:"token" validate:"required"`
-	VideoId     int64  `form:"video_id" validate:"required,numeric"`
-	ActionType  int32  `form:"action_type" validate:"required,numeric"`
-	CommentText string `form:"comment_text"`
-	CommentId   int64  `form:"comment_id"`
+	Token       string `form:"token"         validate:"required,jwt"`
+	VideoId     int64  `form:"video_id"      validate:"required,numeric,min=1"`
+	ActionType  int32  `form:"action_type"   validate:"required,numeric,oneof=1 2"`
+	CommentText string `form:"comment_text"  validate:""`
+	CommentId   int64  `form:"comment_id"    validate:"numeric,min=1"`
 }
 
 //评论列表请求
 type CommentListRequest struct {
-	VideoId int64  `form:"video_id" validate:"required,numeric"`
-	Token   string `form:"token" validate:"required"`
+	VideoId int64  `form:"video_id" validate:"required,numeric,min=1"`
+	Token   string `form:"token"    validate:"required,jwt"`
 }
 
 //评论及取消评论操作

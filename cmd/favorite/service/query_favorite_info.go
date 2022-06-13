@@ -6,7 +6,22 @@ import (
 	videoRepository "ByteDance/cmd/video/repository"
 	"ByteDance/pkg/common"
 	"sync"
+	"ByteDance/utils"
 )
+
+//点赞操作
+func FavoriteAction(userId int32, videoId int32) (err error) {
+	//更新 如果数据库没有该数据则返回IsExist = 0
+	IsExist := repository.FavoriteDao.FavoriteUpdate(userId, videoId)
+
+	if IsExist == 0 {
+		//添加该数据
+		err = repository.FavoriteDao.FavoriteCreate(userId, videoId)
+		utils.CatchErr("添加失败", err)
+	}
+
+	return err
+}
 
 // FavoriteList 点赞列表
 func FavoriteList(userId int32) (videoInfo []video.TheVideoInfo, state int) {

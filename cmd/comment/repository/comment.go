@@ -64,8 +64,8 @@ func (*CommentStruct) CommentList(videoId int32) ([]CommentInfo, bool) {
 
 	var result []CommentInfo
 	// 内联查询
-	err := c.Select(c.ID, c.UserID, u.Username, c.Content, c.CreateTime.As("CreateDate")).Where(c.VideoID.Eq(videoId), c.Removed.Eq(0), c.Deleted.Eq(0)).Join(u, u.ID.EqCol(c.UserID)).Scan(&result)
-	utils.CatchErr("获取视频信息错误", err)
+	err := c.Select(c.ID, c.UserID, u.Username, c.Content, c.CreateTime.As("CreateDate")).Where(c.VideoID.Eq(videoId), c.Removed.Eq(0), c.Deleted.Eq(0)).Join(u, u.ID.EqCol(c.UserID)).Order(c.ID.Desc()).Scan(&result)
+	utils.CatchErr("获取评论错误", err)
 	if result == nil {
 		return nil, false
 
