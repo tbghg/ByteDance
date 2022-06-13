@@ -6,8 +6,6 @@ import (
 	"ByteDance/cmd/video"
 	"ByteDance/dal/method"
 	"ByteDance/utils"
-	"fmt"
-
 	"github.com/araddon/dateparse"
 )
 
@@ -36,7 +34,7 @@ func CommentList(videoId int32) (commentInfo []comment.TheCommentInfo, state int
 		followerCount, followCount, _ := method.QueryFollowCount(commentInfoData.UserID)
 		//评论时间转换
 		createDate, _ := dateparse.ParseAny(commentInfoData.CreateDate)
-		fmt.Println(createDate)
+
 		commentInfo[index] = comment.TheCommentInfo{
 			ID: commentInfoData.ID,
 			User: video.AuthorInfo{
