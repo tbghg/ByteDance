@@ -4,7 +4,6 @@ import (
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"ByteDance/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
 	"github.com/golang-jwt/jwt/v4"
@@ -13,11 +12,6 @@ import (
 )
 
 var mySecret = []byte(common.MySecret)
-
-//点赞操作返回值
-type MiddlewareResponse struct {
-	common.Response
-}
 
 /* JwtMiddleware jwt中间件
 使用方法：路由组最后use(utils.JwtMiddleware 参考favorite路由组)
@@ -28,30 +22,35 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 		var tokenStr string
 		if method == "query" {
 			tokenStr = c.Query("token")
-		} else {
+		} else if method == "form-data" {
 			tokenStr = c.PostForm("token")
+		} else if method == "feed" {
+			tokenStr = c.Query("token")
 		}
 
 		token, err := jwt.ParseWithClaims(tokenStr, &utils.MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return mySecret, nil
 		})
 		if err != nil {
+			if method == "feed" {
+				c.Next()
+				return
+			}
 			if ve, ok := err.(*jwt.ValidationError); ok {
 				if ve.Errors&jwt.ValidationErrorMalformed != 0 { //token格式错误
-					c.JSON(http.StatusOK, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.TokenValidationErrorMalformed}})
-
+					c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.TokenValidationErrorMalformed})
 					c.Abort() //阻止执行
 					return
 				} else if ve.Errors&jwt.ValidationErrorExpired != 0 { //token过期
-					c.JSON(http.StatusOK, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.TokenValidationErrorExpired}})
+					c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.TokenValidationErrorExpired})
 					c.Abort() //阻止执行
 					return
 				} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 { //token未激活
-					c.JSON(http.StatusOK, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.TokenValidationErrorNotValidYet}})
+					c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.TokenValidationErrorNotValidYet})
 					c.Abort() //阻止执行
 					return
 				} else {
-					c.JSON(http.StatusOK, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.TokenHandleFailed}})
+					c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.TokenHandleFailed})
 					c.Abort() //阻止执行
 					return
 				}
@@ -60,14 +59,13 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 
 		if claims, ok := token.Claims.(*utils.MyClaims); ok && token.Valid {
 			id := claims.ID
-			fmt.Println(id)
 			c.Set("user_id", id)
 
 			c.Next()
 			return
 		}
 		//失效的token
-		c.JSON(http.StatusOK, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.TokenValid}})
+		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.TokenValid})
 		c.Abort() //阻止执行
 		return
 	}
@@ -75,7 +73,7 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 
 var redisDb *redis.Client
 
-// 连接到redis
+// InitClient 连接到redis
 func InitClient() (err error) {
 	redisDb = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379", // redis地址
@@ -91,7 +89,7 @@ func InitClient() (err error) {
 	return nil
 }
 
-// ip限流中间件
+// RateMiddleware ip限流中间件
 func RateMiddleware(c *gin.Context) {
 	// 10 秒刷新key为IP(c.ClientIP())的r值为0
 	err := redisDb.SetNX(c.ClientIP(), 0, 10*time.Second).Err()
@@ -111,7 +109,7 @@ func RateMiddleware(c *gin.Context) {
 	// 如果大于100次，返回403
 	if val > 100 {
 		c.Abort()
-		c.JSON(http.StatusForbidden, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg}})
+		c.JSON(http.StatusForbidden, common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg})
 		return
 	} else {
 		// 到下一个中间件
