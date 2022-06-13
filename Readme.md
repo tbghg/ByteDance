@@ -113,7 +113,7 @@ ByteDance
 
 + Gin
 + Gen
-+ Mysql
++ MySQL
 + 阿里云OSS
 + Redis
 + JWT
