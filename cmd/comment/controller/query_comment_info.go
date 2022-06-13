@@ -26,8 +26,8 @@ type CommentActionRequest struct {
 	Token       string `form:"token"         validate:"required,jwt"`
 	VideoId     int64  `form:"video_id"      validate:"required,numeric,min=1"`
 	ActionType  int32  `form:"action_type"   validate:"required,numeric,oneof=1 2"`
-	CommentText string `form:"comment_text"  validate:""`
-	CommentId   int64  `form:"comment_id"    validate:"numeric,min=1"`
+	CommentText string `form:"comment_text"`
+	CommentId   int64  `form:"comment_id"`
 }
 
 //评论列表请求

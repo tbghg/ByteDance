@@ -4,6 +4,7 @@ package msg
 const (
 	AlreadyRegisteredStatusMsg = "该用户名已被注册"
 	RegisterSuccessStatusMsg   = "注册成功"
+	MatchFailedStatusMsg       = "账号密码需要小于32字符，密码包含至少一位数字，字母和特殊字符"
 )
 
 // 用户登录
