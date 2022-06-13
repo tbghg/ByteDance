@@ -29,7 +29,7 @@ type getUserInfoResponse struct {
 	User user.GetUserInfoData `json:"user"`
 }
 
-//注册 登录请求
+// RegisterLoginRequest 注册 登录请求
 type RegisterLoginRequest struct {
 	Username string `form:"username"  validate:"required"`
 	Password string `form:"password"  validate:"required"`
@@ -45,7 +45,7 @@ func RegisterUser(c *gin.Context) {
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, regUserResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			c.JSON(http.StatusOK, regUserResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}

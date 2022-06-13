@@ -46,12 +46,12 @@ func CommentAction(c *gin.Context) {
 	//数据检测
 	//评论
 	if r.ActionType == 1 && len(r.CommentText) == 0 {
-		c.JSON(http.StatusBadRequest, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
+		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
 		return
 	}
 	//取消评论
 	if r.ActionType == 2 && r.CommentId <= 0 {
-		c.JSON(http.StatusBadRequest, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
+		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
 		return
 	}
 
@@ -63,7 +63,7 @@ func CommentAction(c *gin.Context) {
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
@@ -92,7 +92,7 @@ func CommentList(c *gin.Context) {
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
