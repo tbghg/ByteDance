@@ -16,7 +16,6 @@ const (
 // 获取用户信息
 const (
 	UserIDNotExistMsg     = "用户ID不存在"
-	GetUserInfoFailedMsg  = "获取用户信息失败"
 	GetUserInfoSuccessMsg = "获取用户信息成功"
 )
 
@@ -68,5 +67,6 @@ const (
 
 //common
 const (
-	DataFormatErrorMsg = "数据格式错误"
+	DataFormatErrorMsg     = "数据格式错误"
+	RequestTooFastErrorMsg = "请求速度过快"
 )
