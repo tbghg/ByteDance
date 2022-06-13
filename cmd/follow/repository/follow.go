@@ -31,7 +31,7 @@ func init() {
 func (*FollowStruct) RelationUpdate(userId int32, toUserId int32, actionType int32) (RowsAffected int64) {
 	f := dal.ConnQuery.Follow
 
-	follow := &model.Follow{UserID: userId, FunID: toUserId, Removed: actionType}
+	follow := &model.Follow{UserID: toUserId, FunID: userId, Removed: actionType}
 
 	var removed int32
 
@@ -53,40 +53,40 @@ func (*FollowStruct) RelationUpdate(userId int32, toUserId int32, actionType int
 func (*FollowStruct) RelationCreate(userId int32, toUserId int32) (err error) {
 	f := dal.ConnQuery.Follow
 
-	follow := &model.Follow{UserID: userId, FunID: toUserId}
+	follow := &model.Follow{UserID: toUserId, FunID: userId}
 
 	err = f.Create(follow)
 
 	return err
 }
 
-func (*FollowStruct) GetFollowById(userId int32) (followList []*model.Follow, err error) {
+func (*FollowStruct) GetFollowById(userId int32) ([]model.Follow, error) {
 
 	f := dal.ConnQuery.Follow
-
-	followList, err = f.Select(f.FunID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userId)).Find()
+	var result []model.Follow
+	err := f.Select(f.UserID).Where(f.FunID.Eq(userId), f.Removed.Eq(0), f.Deleted.Eq(0)).Scan(&result)
 
 	utils.CatchErr("获取关注列表id错误", err)
 
-	return followList, err
+	return result, err
 }
 
-func (*FollowStruct) GetFollowerById(userId int32) (followerList []*model.Follow, err error) {
+func (*FollowStruct) GetFollowerById(userId int32) ([]model.Follow, error) {
 
 	f := dal.ConnQuery.Follow
-
-	followerList, err = f.Select(f.UserID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.FunID.Eq(userId)).Find()
+	var result []model.Follow
+	err := f.Select(f.FunID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userId)).Scan(&result)
 
 	utils.CatchErr("获取粉丝列表id错误", err)
 
-	return followerList, err
+	return result, err
 }
 
 func (*FollowStruct) QueryIsFollowById(userId int32, funId int32) (isFollow bool) {
 
 	f := dal.ConnQuery.Follow
 
-	_, err := f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.UserID.Eq(userId), f.FunID.Eq(funId)).Take()
+	_, err := f.Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.FunID.Eq(userId), f.UserID.Eq(funId)).Take()
 
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		// 查询到存在相关记录

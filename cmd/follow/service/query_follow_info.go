@@ -47,7 +47,7 @@ func GetFollowListById(userId int64) (userList []follow.User, err error) {
 		go func() {
 			defer wg.Done()
 			//根据关注用户id查用户名
-			user := method.QueryUserById(followData.FunID)
+			user := method.QueryUserById(followData.UserID)
 			username = user.Username
 		}()
 
@@ -88,7 +88,7 @@ func GetFollowerListById(userId int64) (userList []follow.User, err error) {
 		go func() {
 			defer wg.Done()
 			//根据粉丝id查用户名
-			user := method.QueryUserById(followData.UserID)
+			user := method.QueryUserById(followData.FunID)
 			username = user.Username
 		}()
 

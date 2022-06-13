@@ -10,41 +10,29 @@ import (
 	"strconv"
 )
 
-//关注操作返回值
+// RelationActionResponse 关注操作返回值
 type RelationActionResponse struct {
 	common.Response
 }
 
-//关注的所有用户列表的返回值
+// FollowListResponse 关注的所有用户列表的返回值
 type FollowListResponse struct {
 	common.Response
 	UserList []follow.User `json:"user_list"`
 }
 
-/**
-关注操作
-*/
+// RelationAction 关注操作
 func RelationAction(c *gin.Context) {
-	userIdtStr := c.Query("user_id")
-	token := c.Query("token")
-	println("token:" + token)
+	userIdStr := c.Query("user_id")
 	toUserIdStr := c.Query("to_user_id")
 	actionTypeStr := c.Query("action_type")
 
-	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
-	}
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	toUserId, err := strconv.ParseInt(toUserIdStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
-	}
-	actionType, err := strconv.ParseInt(actionTypeStr, 10, 64)
+	actionType, err2 := strconv.ParseInt(actionTypeStr, 10, 64)
 
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
+	if err != nil || err2 != nil {
+		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 		return
 	}
 
@@ -59,21 +47,13 @@ func RelationAction(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFollowSuccessMsg}})
 	}
-
 }
 
-/**
-获取登录用户关注的所有用户列表
-*/
+// FollowList 获取登录用户关注的所有用户列表
 func FollowList(c *gin.Context) {
-	userIdtStr := c.Query("user_id")
-	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
-	}
-
-	UserList, err := service.GetFollowListById(userId)
+	userIdStr := c.Query("user_id")
+	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
+	UserList, err := service.GetFollowListById(int64(userId))
 
 	if err == nil {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
@@ -81,22 +61,16 @@ func FollowList(c *gin.Context) {
 			StatusMsg:  msg.GetFollowUserListSuccessMsg},
 			UserList})
 	} else {
-		c.JSON(http.StatusBadRequest, FollowListResponse{common.Response{StatusCode: -1, StatusMsg: msg.GetFollowUserListFailedMsg}, UserList})
+		c.JSON(http.StatusOK, FollowListResponse{common.Response{StatusCode: -1, StatusMsg: msg.GetFollowUserListFailedMsg}, UserList})
 	}
 }
 
-/**
-获取登录用户关注的粉丝用户列表
-*/
+// FollowerList 获取登录用户关注的粉丝用户列表
 func FollowerList(c *gin.Context) {
-	userIdtStr := c.Query("user_id")
-	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
-	}
+	userIdStr := c.Query("user_id")
+	userId, _ := strconv.ParseInt(userIdStr, 10, 64)
 
-	UserList, err := service.GetFollowerListById(userId)
+	UserList, err := service.GetFollowerListById(int64(userId))
 
 	if err == nil {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
@@ -104,6 +78,6 @@ func FollowerList(c *gin.Context) {
 			StatusMsg:  msg.GetFollowerUserListSuccessMsg},
 			UserList})
 	} else {
-		c.JSON(http.StatusBadRequest, FollowListResponse{common.Response{StatusCode: -1, StatusMsg: msg.GetFollowerUserListFailedMsg}, UserList})
+		c.JSON(http.StatusOK, FollowListResponse{common.Response{StatusCode: -1, StatusMsg: msg.GetFollowerUserListFailedMsg}, UserList})
 	}
 }
