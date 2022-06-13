@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/locales/zh"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis"
 	"time"
 )
 
@@ -41,3 +42,6 @@ const Favorite = 0
 
 // Removed 取消操作
 const Removed = 1
+
+//redis
+var RedisDb *redis.Client

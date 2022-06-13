@@ -6,7 +6,6 @@ import (
 	"ByteDance/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis"
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"time"
@@ -73,43 +72,25 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 	}
 }
 
-var redisDb *redis.Client
-
-// 连接到redis
-func InitClient() (err error) {
-	redisDb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // redis地址
-		Password: "",               // redis密码，没有则留空
-		DB:       0,                // 默认数据库，默认是0
-	})
-
-	//通过 *redis.Client.Ping() 来检查是否成功连接到了redis服务器
-	_, err = redisDb.Ping().Result()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // ip限流中间件
 func RateMiddleware(c *gin.Context) {
-	// 10 秒刷新key为IP(c.ClientIP())的r值为0
-	err := redisDb.SetNX(c.ClientIP(), 0, 10*time.Second).Err()
+	// 1 秒刷新key为IP(c.ClientIP())的r值为0
+	err := common.RedisDb.SetNX(c.ClientIP(), 0, 1*time.Second).Err()
 
 	// 每次访问，这个IP的对应的值加一
-	redisDb.Incr(c.ClientIP())
+	common.RedisDb.Incr(c.ClientIP())
 	if err != nil {
 		panic(err)
 	}
 
 	// 获取IP访问的次数
 	var val int
-	val, err = redisDb.Get(c.ClientIP()).Int()
+	val, err = common.RedisDb.Get(c.ClientIP()).Int()
 	if err != nil {
 		panic(err)
 	}
-	// 如果大于100次，返回403
-	if val > 100 {
+	// 如果大于20次，返回403
+	if val > 20 {
 		c.Abort()
 		c.JSON(http.StatusForbidden, MiddlewareResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg}})
 		return
