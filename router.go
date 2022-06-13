@@ -14,7 +14,6 @@ import (
 )
 
 func initRouter(r *gin.Engine) {
-	r.Use(middleware.RateMiddleware)
 	// GRoute总路由组
 	GRoute := r.Group("/douyin")
 	{
@@ -26,7 +25,7 @@ func initRouter(r *gin.Engine) {
 			user.GET("/", middleware.JwtMiddleware("query"), userController.GetUserInfo)
 		}
 		//follow路由组
-		relation := GRoute.Group("relation")
+		relation := GRoute.Group("relation").Use(middleware.JwtMiddleware("query"))
 		{
 			relation.POST("/action/", relationController.RelationAction)
 			relation.GET("/follow/list/", relationController.FollowList)
@@ -38,22 +37,20 @@ func initRouter(r *gin.Engine) {
 			favorite.POST("/action/", favoriteController.FavoriteAction)
 			favorite.GET("/list/", favoriteController.FavoriteList)
 		}
-		// 视频流接口
-		GRoute.GET("/feed/", videoController.GetVideoFeed)
+		//feed获取视频流接口
+		GRoute.GET("/feed/", middleware.JwtMiddleware("feed"), videoController.GetVideoFeed)
 		//publish路由组
 		publish := GRoute.Group("/publish")
 		{
 			publish.POST("/action/", middleware.JwtMiddleware("form-data"), videoController.PublishVideo)
-			//publish.GET("/list/", middleware.JwtMiddleware("query"),)
+			publish.GET("/list/", middleware.JwtMiddleware("query"), videoController.PublicList)
 		}
 		//comment路由组
 		comment := GRoute.Group("/comment").Use(middleware.JwtMiddleware("query"))
 		{
-
 			comment.POST("/action/", commentController.CommentAction)
 			comment.GET("/list/", commentController.CommentList)
 		}
-
 	}
 	// 注册翻译器
 	_ = zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
