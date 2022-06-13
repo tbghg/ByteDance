@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ByteDance/dal"
 	"ByteDance/pkg/middleware"
 	"ByteDance/utils"
 	"fmt"
@@ -10,7 +11,7 @@ import (
 func main() {
 	r := gin.Default()
 	// 启动redis
-	err1 := middleware.InitClient()
+	err1 := dal.InitClient()
 	if err1 != nil {
 		//redis连接错误
 		fmt.Println("Redis连接失败")
