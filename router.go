@@ -26,7 +26,7 @@ func initRouter(r *gin.Engine) {
 			user.GET("/", middleware.JwtMiddleware("query"), userController.GetUserInfo)
 		}
 		//follow路由组
-		relation := GRoute.Group("relation")
+		relation := GRoute.Group("relation").Use(middleware.JwtMiddleware("query"))
 		{
 			relation.POST("/action/", relationController.RelationAction)
 			relation.GET("/follow/list/", relationController.FollowList)
