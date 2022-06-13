@@ -10,11 +10,6 @@ import (
 	"time"
 )
 
-// User 数据库查询完毕后将查询结构放在此处
-type User struct {
-	model.User
-}
-
 type UserDaoStruct struct {
 }
 
