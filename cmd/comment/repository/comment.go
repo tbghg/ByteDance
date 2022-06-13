@@ -3,7 +3,6 @@ package repository
 import (
 	"ByteDance/dal"
 	"ByteDance/dal/model"
-	"ByteDance/pkg/common"
 	"ByteDance/utils"
 	"sync"
 )
@@ -17,10 +16,6 @@ type CommentInfo struct {
 	CreateDate    string
 	FavoriteCount int
 	IsFavorite    bool
-}
-
-type Comment struct {
-	model.Comment
 }
 
 type CommentStruct struct {
@@ -44,7 +39,7 @@ func (*CommentStruct) CommentUpdate(commentId int32) (RowsAffected int64) {
 
 	comment := &model.Comment{ID: commentId}
 
-	row, err := c.Where(c.ID.Eq(comment.ID)).Update(c.Removed, common.Removed)
+	row, err := c.Where(c.ID.Eq(comment.ID)).Update(c.Removed, 0)
 
 	utils.CatchErr("更新错误", err)
 
