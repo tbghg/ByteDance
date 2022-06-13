@@ -26,20 +26,6 @@ func QueryFollowCount(userID int32) (followerCount int64, followCount int64, suc
 	return followerCount, followCount, true
 }
 
-func QueryCommentCountByVideoID(videoID int32) int64 {
-	c := dal.ConnQuery.Comment
-	commentCount, err := c.Select(c.VideoID).Where(c.Deleted.Eq(0), c.Removed.Eq(0), c.VideoID.Eq(videoID)).Count()
-	utils.CatchErr("查询评论数错误", err)
-	return commentCount
-}
-
-func QueryFavoriteCount(videoID int32) int64 {
-	f := dal.ConnQuery.Favorite
-	favoriteCount, err := f.Select(f.VideoID).Where(f.Deleted.Eq(0), f.Removed.Eq(0), f.VideoID.Eq(videoID)).Count()
-	utils.CatchErr("查询点赞数错误", err)
-	return favoriteCount
-}
-
 func QueryUserById(userId int32) (user *model.User) {
 	u := dal.ConnQuery.User
 	user, _ = u.Where(u.ID.Eq(userId)).First()
