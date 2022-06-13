@@ -7,7 +7,7 @@ import (
 )
 
 func RegUser(username string, password string) (regUserData *user.RegUserData, isExist bool) {
-	// 检测账号是否重复，但是接口文档并没有指出账号重复如何返回
+	// 检测账号是否重复
 	isExist = repository.UserDao.IsUsernameExist(username)
 	if !isExist {
 		id, err := repository.UserDao.CreateUser(username, password)
@@ -39,7 +39,7 @@ func LoginUser(username string, password string) (loginData *user.LoginData, sta
 }
 
 func GetUserInfo(userID int32) (userInfoData *user.GetUserInfoData, success bool) {
-	// 分两段，第一部分查询用户名，第二部分count粉丝数、关注数
+
 	username, followCount, followerCount, isExist := repository.UserDao.QueryUserInfoByID(userID)
 	if !isExist {
 		// userID 不存在相关记录
