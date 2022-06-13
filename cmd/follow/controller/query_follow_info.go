@@ -6,8 +6,8 @@ import (
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
-	"strconv"
 )
 
 //关注操作返回值
@@ -21,40 +21,47 @@ type FollowListResponse struct {
 	UserList []follow.User `json:"user_list"`
 }
 
+//关注与取消请求
+type FollowActionRequest struct {
+	Token      string `form:"token"        validate:"required,jwt"`
+	ToUserId   int64  `form:"to_user_id"   validate:"required,numeric,min=1"`
+	ActionType int32  `form:"action_type"  validate:"required,numeric,oneof=1 2"`
+}
+
+//关注、粉丝列表请求
+type ListRequest struct {
+	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
+	Token  string `form:"token"   validate:"required,jwt"`
+}
+
 /**
 关注操作
 */
 func RelationAction(c *gin.Context) {
-	userIdtStr := c.Query("user_id")
-	token := c.Query("token")
-	println("token:" + token)
-	toUserIdStr := c.Query("to_user_id")
-	actionTypeStr := c.Query("action_type")
+	var r FollowActionRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	//获取token中的userid
+	value, _ := c.Get("user_id")
+	UserId, _ := value.(int)
 
-	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
-	}
-	toUserId, err := strconv.ParseInt(toUserIdStr, 10, 64)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
-	}
-	actionType, err := strconv.ParseInt(actionTypeStr, 10, 64)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
 	}
 
-	err = service.RelationAction(int32(userId), int32(toUserId), int32(actionType))
+	err = service.RelationAction(int32(UserId), int32(r.ToUserId), int32(r.ActionType))
 
 	if err != nil {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1}})
 		return
 	}
-	if actionType == 1 {
+	if r.ActionType == 1 {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.FollowSuccessMsg}})
 	} else {
 		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnFollowSuccessMsg}})
@@ -66,14 +73,20 @@ func RelationAction(c *gin.Context) {
 获取登录用户关注的所有用户列表
 */
 func FollowList(c *gin.Context) {
-	userIdtStr := c.Query("user_id")
-	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
+	var r ListRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
 	}
 
-	UserList, err := service.GetFollowListById(userId)
+	UserList, err := service.GetFollowListById(r.UserId)
 
 	if err == nil {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
@@ -89,14 +102,20 @@ func FollowList(c *gin.Context) {
 获取登录用户关注的粉丝用户列表
 */
 func FollowerList(c *gin.Context) {
-	userIdtStr := c.Query("user_id")
-	userId, err := strconv.ParseInt(userIdtStr, 10, 64)
+	var r ListRequest
+	// 接收参数并绑定
+	err := c.ShouldBindQuery(&r)
+	// 使用common包中Validate验证器
+	err = common.Validate.Struct(r)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.DataFormatErrorMsg}})
-		return
+		if _, ok := err.(validator.ValidationErrors); ok {
+			// 翻译，并返回
+			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			return
+		}
 	}
 
-	UserList, err := service.GetFollowerListById(userId)
+	UserList, err := service.GetFollowerListById(r.UserId)
 
 	if err == nil {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
