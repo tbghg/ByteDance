@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"ByteDance/dal"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
 	"ByteDance/utils"
@@ -8,14 +9,11 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"net/http"
 	"time"
-	"github.com/go-redis/redis"
 )
 
 var mySecret = []byte(common.MySecret)
 
-/* JwtMiddleware jwt中间件
-使用方法：路由组最后use(utils.JwtMiddleware 参考favorite路由组)
-*/
+// JwtMiddleware jwt中间件 使用方法：路由组最后use(utils.JwtMiddleware 参考favorite路由组)
 func JwtMiddleware(method string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//从请求头中获取token
@@ -71,39 +69,21 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 	}
 }
 
-var redisDb *redis.Client
-
-// InitClient 连接到redis
-func InitClient() (err error) {
-	redisDb = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // redis地址
-		Password: "",               // redis密码，没有则留空
-		DB:       0,                // 默认数据库，默认是0
-	})
-
-	//通过 *redis.Client.Ping() 来检查是否成功连接到了redis服务器
-	_, err = redisDb.Ping().Result()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // RateMiddleware ip限流中间件
 // ip限流中间件
 func RateMiddleware(c *gin.Context) {
 	// 1 秒刷新key为IP(c.ClientIP())的r值为0
-	err := redisDb.SetNX(c.ClientIP(), 0, 1*time.Second).Err()
+	err := dal.RedisDb.SetNX(c.ClientIP(), 0, 1*time.Second).Err()
 
 	// 每次访问，这个IP的对应的值加一
-	redisDb.Incr(c.ClientIP())
+	dal.RedisDb.Incr(c.ClientIP())
 	if err != nil {
 		panic(err)
 	}
 
 	// 获取IP访问的次数
 	var val int
-	val, err = redisDb.Get(c.ClientIP()).Int()
+	val, err = dal.RedisDb.Get(c.ClientIP()).Int()
 	if err != nil {
 		panic(err)
 	}
