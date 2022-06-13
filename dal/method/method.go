@@ -1,7 +1,5 @@
 package method
 
-import "gorm.io/gen"
-
 // UserMethod Method 指定自定义查询方法
 type FollowMethod interface {
 	// 查询用户粉丝数
@@ -20,11 +18,6 @@ type FavoriteMethod interface {
 	//
 	// select count(1) from favorite where video_id = @videoID and removed = 0 and deleted = 0
 	QueryFavoriteCount(videoID int32) int64
-
-	// removed置反
-	//
-	// update favorite set removed = -removed where user_id = @userID and video_id = @videoID and deleted = 0
-	UpdateFavoriteRemoved(userID int32, videoID int32) (gen.RowsAffected, error)
 }
 
 type CommentMethod interface {

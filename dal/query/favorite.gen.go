@@ -116,28 +116,6 @@ func (f favoriteDo) QueryFavoriteCount(videoID int32) (result int64) {
 	return
 }
 
-//removed置反
-//
-//update favorite set removed = -removed where user_id = @userID and video_id = @videoID and deleted = 0
-func (f favoriteDo) UpdateFavoriteRemoved(userID int32, videoID int32) (rowsAffected int64, err error) {
-	params := make(map[string]interface{}, 0)
-
-	var generateSQL strings.Builder
-	params["userID"] = userID
-	params["videoID"] = videoID
-	generateSQL.WriteString("update favorite set removed = -removed where user_id = @userID and video_id = @videoID and deleted = 0 ")
-
-	var executeSQL *gorm.DB
-	if len(params) > 0 {
-		executeSQL = f.UnderlyingDB().Exec(generateSQL.String(), params)
-	} else {
-		executeSQL = f.UnderlyingDB().Exec(generateSQL.String())
-	}
-	rowsAffected = executeSQL.RowsAffected
-	err = executeSQL.Error
-	return
-}
-
 func (f favoriteDo) Debug() *favoriteDo {
 	return f.withDO(f.DO.Debug())
 }
