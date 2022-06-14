@@ -72,8 +72,8 @@ func JwtMiddleware(method string) gin.HandlerFunc {
 // RateMiddleware ip限流中间件
 // ip限流中间件
 func RateMiddleware(c *gin.Context) {
-	// 1 秒刷新key为IP(c.ClientIP())的r值为0
-	err := dal.RedisDb.SetNX(c.ClientIP(), 0, 1*time.Second).Err()
+	// 5 秒刷新key为IP(c.ClientIP())的r值为0
+	err := dal.RedisDb.SetNX(c.ClientIP(), 0, 5*time.Second).Err()
 
 	// 每次访问，这个IP的对应的值加一
 	dal.RedisDb.Incr(c.ClientIP())
@@ -87,8 +87,8 @@ func RateMiddleware(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	// 如果大于20次，返回403
-	if val > 20 {
+	// 如果5秒内大于100次
+	if val > 100 {
 		c.Abort()
 		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg})
 		return
