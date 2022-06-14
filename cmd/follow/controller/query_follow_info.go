@@ -50,7 +50,7 @@ func RelationAction(c *gin.Context) {
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
@@ -78,7 +78,7 @@ func FollowList(c *gin.Context) {
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}
@@ -105,7 +105,7 @@ func FollowerList(c *gin.Context) {
 	if err != nil {
 		if _, ok := err.(validator.ValidationErrors); ok {
 			// 翻译，并返回
-			c.JSON(http.StatusBadRequest, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
+			c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
 	}

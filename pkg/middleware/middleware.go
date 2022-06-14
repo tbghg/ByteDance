@@ -90,7 +90,7 @@ func RateMiddleware(c *gin.Context) {
 	// 如果大于20次，返回403
 	if val > 20 {
 		c.Abort()
-		c.JSON(http.StatusForbidden, common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg})
+		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg})
 		return
 	} else {
 		// 到下一个中间件
