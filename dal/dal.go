@@ -25,7 +25,9 @@ func getQueryConnection() *query.Query {
 	var db *gorm.DB
 	db, err = gorm.Open(mysql.Open(common.MySqlDSN))
 	if err != nil {
-		utils.Log.Panic("数据库连接错误" + err.Error())
+		utils.Log.Fatal("数据库连接错误" + err.Error())
+	} else {
+		utils.Log.Info("MySQL连接成功")
 	}
 	ConnQuery = query.Use(db)
 	return ConnQuery

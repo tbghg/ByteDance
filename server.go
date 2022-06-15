@@ -23,7 +23,7 @@ func main() {
 	err := r.Run(":8000")
 	if err != nil {
 		wg.Wait()
-		utils.Log.Panic("服务启动失败 " + err.Error())
+		utils.Log.Fatal("服务启动失败 " + err.Error())
 	}
 }
 
