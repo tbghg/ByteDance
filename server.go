@@ -10,19 +10,8 @@ import (
 
 func main() {
 	wg := &sync.WaitGroup{}
-	wg.Add(3)
-	go func() {
-		utils.LogConfig() // 初始化日志配置
-		wg.Done()
-	}()
-	go func() {
-		utils.OSSInit() // OSS初始化，将ConnQuery与数据库绑定
-		wg.Done()
-	}()
-	go func() {
-		dal.MySQLInit() // MySQL初始化，连接数据库
-		wg.Done()
-	}()
+	wg.Add(2)
+	configInit(wg)
 
 	r := gin.Default()
 
@@ -36,4 +25,16 @@ func main() {
 		wg.Wait()
 		utils.Log.Panic("服务启动失败 " + err.Error())
 	}
+}
+
+func configInit(wg *sync.WaitGroup) {
+	utils.LogConfig() // 初始化日志配置
+	go func() {
+		utils.OSSInit() // OSS初始化，将ConnQuery与数据库绑定
+		wg.Done()
+	}()
+	go func() {
+		dal.MySQLInit() // MySQL初始化，连接数据库
+		wg.Done()
+	}()
 }
