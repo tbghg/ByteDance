@@ -13,8 +13,8 @@ import (
 var ConnQuery *query.Query
 var once sync.Once
 
-// 初始化，将ConnQuery与数据库绑定
-func init() {
+// MySQLInit 初始化，将ConnQuery与数据库绑定
+func MySQLInit() {
 	once.Do(func() {
 		ConnQuery = getQueryConnection()
 	})
@@ -25,7 +25,7 @@ func getQueryConnection() *query.Query {
 	var db *gorm.DB
 	db, err = gorm.Open(mysql.Open(common.MySqlDSN))
 	if err != nil {
-		utils.CatchErr("数据库连接错误", err)
+		utils.Log.Panic("数据库连接错误" + err.Error())
 	}
 	ConnQuery = query.Use(db)
 	return ConnQuery
@@ -35,7 +35,7 @@ func getQueryConnection() *query.Query {
 var RedisDb *redis.Client
 
 // InitClient 连接到redis
-func InitClient() (err error) {
+func InitClient() bool {
 	RedisDb = redis.NewClient(&redis.Options{
 		Addr:     common.RedisLocalhost, // redis地址
 		Password: common.RedisPassword,  // redis密码，没有则留空
@@ -43,9 +43,12 @@ func InitClient() (err error) {
 	})
 
 	//通过 *redis.Client.Ping() 来检查是否成功连接到了redis服务器
-	_, err = RedisDb.Ping().Result()
+	_, err := RedisDb.Ping().Result()
 	if err != nil {
-		return err
+		utils.Log.Warn("Redis连接失败")
+		return false
+	} else {
+		utils.Log.Info("Redis连接成功")
+		return true
 	}
-	return nil
 }
