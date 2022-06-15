@@ -30,8 +30,11 @@ func GetVideoFeed(lastTime int64, userID int32) (nextTime int64, videoInfo []vid
 	for index, videoInfoData := range allVideoInfoData {
 		go func(index int, videoInfo []video.TheVideoInfo, videoInfoData repository.VideoInfo, userID int32) {
 			followerCount, followCount, commentCount, favoriteCount := repository.VideoDao.GetVideoInfo(videoInfoData.UserID, videoInfoData.VideoID)
-			isFavorite := repository.VideoDao.QueryIsFavorite(userID, videoInfoData.VideoID)
-			isFollow := repository.VideoDao.QueryIsFollow(userID, videoInfoData.UserID)
+			var isFollow, isFavorite bool
+			if userID != 0 {
+				isFavorite = repository.VideoDao.QueryIsFavorite(userID, videoInfoData.VideoID)
+				isFollow = repository.VideoDao.QueryIsFollow(userID, videoInfoData.UserID)
+			}
 
 			videoInfo[index] = video.TheVideoInfo{
 				ID: videoInfoData.VideoID,
@@ -79,7 +82,8 @@ func PublishVideo(userID int, title string, fileBytes []byte) (success bool) {
 		buf := new(bytes.Buffer)
 		cmd.Stdout = buf
 		err := cmd.Run()
-		if !utils.CatchErr("ffmpeg运行错误", err) {
+		if err != nil {
+			utils.Log.Error("ffmpeg运行错误" + err.Error())
 			*success = false
 		}
 		// 将视频封面上传至OSS中
