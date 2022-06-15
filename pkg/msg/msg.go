@@ -71,4 +71,5 @@ const (
 const (
 	RequestTooFastErrorMsg = "请求速度过快"
 	DataFormatErrorMsg     = "请求数据缺失或格式错误"
+	SensitiveWordErrorMsg  = "请勿涉及敏感词"
 )
