@@ -2,7 +2,7 @@ package comment
 
 import "ByteDance/cmd/video"
 
-//评论信息
+// TheCommentInfo 评论信息
 type TheCommentInfo struct {
 	ID         int32            `json:"id"`
 	User       video.AuthorInfo `json:"user"`
