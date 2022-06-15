@@ -5,6 +5,7 @@ import (
 	"ByteDance/cmd/user/service"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
+	"ByteDance/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -50,7 +51,7 @@ func RegisterUser(c *gin.Context) {
 		}
 	}
 	//密码强度检测
-	match := common.MatchStr(r.Password)
+	match := utils.MatchStr(r.Password)
 	if !match || len(r.Username) > 32 {
 		c.JSON(http.StatusOK, regUserResponse{
 			Response: common.Response{
