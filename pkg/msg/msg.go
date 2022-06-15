@@ -44,6 +44,7 @@ const (
 const (
 	FollowSuccessMsg              = "关注成功"
 	UnFollowSuccessMsg            = "取消关注成功"
+	FollowFailedMsg               = "操作失败"
 	GetFollowUserListSuccessMsg   = "获取用户关注列表成功"
 	GetFollowUserListFailedMsg    = "获取用户关注列表失败"
 	GetFollowerUserListSuccessMsg = "获取粉丝列表成功"
