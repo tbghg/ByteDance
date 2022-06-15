@@ -4,7 +4,6 @@ import (
 	"ByteDance/cmd/follow"
 	"ByteDance/cmd/follow/repository"
 	"ByteDance/dal/method"
-	"ByteDance/utils"
 	"sync"
 )
 
@@ -15,28 +14,27 @@ var (
 	isFollow      bool
 )
 
-func RelationAction(userId int32, toUserId int32, actionType int32) (err error) {
+func RelationAction(userId int32, toUserId int32, actionType int32) bool {
 	//更新 如果数据库没有该数据则返回IsExist = 0
 	IsExist := repository.FollowDao.RelationUpdate(userId, toUserId, actionType)
 
 	if IsExist == 0 {
-		//添加该数据
-		err = repository.FollowDao.RelationCreate(userId, toUserId)
-		utils.CatchErr("添加失败", err)
+		if !repository.FollowDao.RelationCreate(userId, toUserId) {
+			return false
+		}
 	}
-
-	return err
+	return true
 }
 
-func GetFollowListById(userId int64) (userList []follow.User, err error) {
+func GetFollowListById(userId int64) ([]follow.User, bool) {
 
 	//根据登录用户id获取关注用户id列表
 
-	followList, err := repository.FollowDao.GetFollowById(int32(userId))
+	followList, success := repository.FollowDao.GetFollowById(int32(userId))
 
 	//根据FollowList的长度初始化UserList
 
-	userList = make([]follow.User, len(followList))
+	userList := make([]follow.User, len(followList))
 
 	for index, followData := range followList {
 
@@ -67,17 +65,17 @@ func GetFollowListById(userId int64) (userList []follow.User, err error) {
 			IsFollow:      true,
 		}
 	}
-	return userList, err
+	return userList, success
 }
 
-func GetFollowerListById(userId int64) (userList []follow.User, err error) {
+func GetFollowerListById(userId int64) ([]follow.User, bool) {
 	//根据登录用户id获取粉丝id列表
 
-	followerList, err := repository.FollowDao.GetFollowerById(int32(userId))
+	followerList, success := repository.FollowDao.GetFollowerById(int32(userId))
 
 	//根据FollowList的长度初始化UserList
 
-	userList = make([]follow.User, len(followerList))
+	userList := make([]follow.User, len(followerList))
 
 	for index, followData := range followerList {
 
@@ -115,5 +113,5 @@ func GetFollowerListById(userId int64) (userList []follow.User, err error) {
 			IsFollow:      isFollow,
 		}
 	}
-	return userList, err
+	return userList, success
 }

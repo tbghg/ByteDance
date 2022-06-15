@@ -21,22 +21,20 @@ type FollowListResponse struct {
 	UserList []follow.User `json:"user_list"`
 }
 
-//关注与取消请求
+// FollowActionRequest 关注与取消请求
 type FollowActionRequest struct {
 	Token      string `form:"token"        validate:"required,jwt"`
 	ToUserId   int64  `form:"to_user_id"   validate:"required,numeric,min=1"`
 	ActionType int32  `form:"action_type"  validate:"required,numeric,oneof=1 2"`
 }
 
-//关注、粉丝列表请求
+// ListRequest 关注、粉丝列表请求
 type ListRequest struct {
 	UserId int64  `form:"user_id" validate:"required,numeric,min=1"`
 	Token  string `form:"token"   validate:"required,jwt"`
 }
 
-/**
-关注操作
-*/
+// RelationAction 关注操作
 func RelationAction(c *gin.Context) {
 	var r FollowActionRequest
 	// 接收参数并绑定
@@ -55,10 +53,10 @@ func RelationAction(c *gin.Context) {
 		}
 	}
 
-	err = service.RelationAction(int32(UserId), int32(r.ToUserId), int32(r.ActionType))
+	success := service.RelationAction(int32(UserId), int32(r.ToUserId), r.ActionType)
 
-	if err != nil {
-		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1}})
+	if !success {
+		c.JSON(http.StatusOK, RelationActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.FollowFailedMsg}})
 		return
 	}
 	if r.ActionType == 1 {
@@ -83,9 +81,9 @@ func FollowList(c *gin.Context) {
 		}
 	}
 
-	UserList, err := service.GetFollowListById(r.UserId)
+	UserList, success := service.GetFollowListById(r.UserId)
 
-	if err == nil {
+	if success {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
 			StatusCode: 0,
 			StatusMsg:  msg.GetFollowUserListSuccessMsg},
@@ -110,9 +108,9 @@ func FollowerList(c *gin.Context) {
 		}
 	}
 
-	UserList, err := service.GetFollowerListById(r.UserId)
+	UserList, success := service.GetFollowerListById(r.UserId)
 
-	if err == nil {
+	if success {
 		c.JSON(http.StatusOK, FollowListResponse{common.Response{
 			StatusCode: 0,
 			StatusMsg:  msg.GetFollowerUserListSuccessMsg},

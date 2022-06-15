@@ -10,10 +10,8 @@ func RegUser(username string, password string) (regUserData *user.RegUserData, i
 	// 检测账号是否重复
 	isExist = repository.UserDao.IsUsernameExist(username)
 	if !isExist {
-		id, err := repository.UserDao.CreateUser(username, password)
-		utils.CatchErr("CreateUser", err)
-		token, err2 := utils.GenToken(id)
-		utils.CatchErr("tokenError", err2)
+		id := repository.UserDao.CreateUser(username, password)
+		token := utils.GenToken(id)
 		regUserData = &user.RegUserData{
 			ID:    id,
 			Token: token,
@@ -28,8 +26,7 @@ func LoginUser(username string, password string) (loginData *user.LoginData, sta
 	id, state = repository.UserDao.CheckPassword(username, password)
 	if state == 1 {
 		// 登录成功，创建loginData、计算token
-		token, err := utils.GenToken(id)
-		utils.CatchErr("tokenError", err)
+		token := utils.GenToken(id)
 		loginData = &user.LoginData{
 			ID:    id,
 			Token: token,

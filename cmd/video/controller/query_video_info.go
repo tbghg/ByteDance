@@ -34,9 +34,7 @@ func GetVideoFeed(c *gin.Context) {
 	var userID int32
 	if success {
 		userID = int32(userIDInterface.(int))
-	} else {
-		userID = 0
-	}
+	} // 若不存在，userID默认为0
 
 	if lastTime == 0 {
 		lastTime = time.Now().Unix()
@@ -83,16 +81,22 @@ func PublishVideo(c *gin.Context) {
 	}
 
 	fileHandle, err1 := data.Open() //打开上传文件
-	utils.CatchErr("打开文件失败", err1)
+	if err1 != nil {
+		utils.Log.Error("打开文件失败" + err1.Error())
+	}
 
 	// 闭包处理错误
 	defer func(fileHandle multipart.File) {
 		err := fileHandle.Close()
-		utils.CatchErr("关闭文件错误", err)
+		if err != nil {
+			utils.Log.Error("关闭文件错误" + err.Error())
+		}
 	}(fileHandle)
 
 	fileByte, err2 := ioutil.ReadAll(fileHandle)
-	utils.CatchErr("读取文件错误", err2)
+	if err2 != nil {
+		utils.Log.Error("读取文件错误" + err2.Error())
+	}
 
 	if service.PublishVideo(userID.(int), title, fileByte) {
 		c.JSON(http.StatusOK,

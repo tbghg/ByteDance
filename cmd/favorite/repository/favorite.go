@@ -39,12 +39,14 @@ func (*FavoriteStruct) FavoriteAction(userId int32, videoId int32, actionType in
 		// 不存在相关记录，需要进行创建
 		favorite := &model.Favorite{UserID: userId, VideoID: videoId}
 		err := f.Create(favorite)
-		if !utils.CatchErr("添加favorite错误", err) {
+		if err != nil {
+			utils.Log.Error("添加favorite错误" + err.Error())
 			return false
 		}
 	} else {
 		_, err := f.Where(f.UserID.Eq(userId), f.VideoID.Eq(videoId), f.Deleted.Eq(0)).Update(f.Removed, removed)
 		if err != nil {
+			utils.Log.Error("更新favorite错误" + err.Error())
 			return false
 		}
 	}
@@ -60,8 +62,8 @@ func (*FavoriteStruct) FavoriteList(userId int32) ([]videoRepository.VideoInfo, 
 	var result []videoRepository.VideoInfo
 	// 内联查询
 	err := f.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(f.UserID.Eq(userId), f.Removed.Eq(-1), f.Deleted.Eq(0)).Join(v, v.ID.EqCol(f.VideoID)).Join(u, u.ID.EqCol(v.AuthorID)).Scan(&result)
-	utils.CatchErr("获取视频信息错误", err)
-	if result == nil {
+	if err != nil {
+		utils.Log.Error("获取视频信息错误" + err.Error())
 		return nil, false
 	}
 	return result, true

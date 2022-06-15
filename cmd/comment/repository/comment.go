@@ -41,20 +41,25 @@ func (*CommentStruct) CommentUpdate(commentId int32) (RowsAffected int64) {
 
 	row, err := c.Where(c.ID.Eq(comment.ID)).Update(c.Removed, 1)
 
-	utils.CatchErr("更新错误", err)
+	if err != nil {
+		utils.Log.Error("评论更新错误" + err.Error())
+	}
 
 	return row.RowsAffected
 }
 
 // CommentCreate 评论操作
-func (*CommentStruct) CommentCreate(userId int32, videoId int32, commentText string) (err error) {
+func (*CommentStruct) CommentCreate(userId int32, videoId int32, commentText string) bool {
 	c := dal.ConnQuery.Comment
 
 	comment := &model.Comment{UserID: userId, VideoID: videoId, Content: commentText}
 
-	err = c.Create(comment)
-
-	return err
+	err := c.Create(comment)
+	if err != nil {
+		utils.Log.Error("插入评论表错误" + err.Error())
+		return false
+	}
+	return true
 }
 
 // CommentList 评论列表
@@ -65,10 +70,9 @@ func (*CommentStruct) CommentList(videoId int32) ([]CommentInfo, bool) {
 	var result []CommentInfo
 	// 内联查询
 	err := c.Select(c.ID, c.UserID, u.Username, c.Content, c.CreateTime.As("CreateDate")).Where(c.VideoID.Eq(videoId), c.Removed.Eq(0), c.Deleted.Eq(0)).Join(u, u.ID.EqCol(c.UserID)).Order(c.ID.Desc()).Scan(&result)
-	utils.CatchErr("获取评论错误", err)
-	if result == nil {
+	if err != nil {
+		utils.Log.Error("获取评论错误" + err.Error())
 		return nil, false
-
 	}
 	return result, true
 }

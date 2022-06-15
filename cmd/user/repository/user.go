@@ -34,13 +34,15 @@ func (*UserDaoStruct) IsUsernameExist(username string) (isExist bool) {
 	return true
 }
 
-func (*UserDaoStruct) CreateUser(username string, password string) (int, error) {
+func (*UserDaoStruct) CreateUser(username string, password string) int {
 	u := dal.ConnQuery.User
 	user := &model.User{Username: username, Password: utils.Md5(password)}
 
 	err := u.Create(user)
-
-	return int(user.ID), err
+	if err != nil {
+		utils.Log.Error("创建用户错误" + err.Error())
+	}
+	return int(user.ID)
 }
 
 func (*UserDaoStruct) CheckPassword(username string, password string) (id int, state int) {
@@ -55,15 +57,16 @@ func (*UserDaoStruct) CheckPassword(username string, password string) (id int, s
 				state = 1
 				id = int(user.ID)
 				_, updateErr := u.Where(u.ID.Eq(user.ID)).Update(u.LoginTime, time.Now().Format("2006-01-02 15:04:05"))
-				utils.CatchErr("登录时间更新", updateErr)
+				if updateErr != nil {
+					utils.Log.Error("登录时间更新" + updateErr.Error())
+				}
 			} else {
-				// 账号无法使用
-				state = -1
+				state = -1 // 账号无法使用
 			}
 		}
 	} else {
-		// 不存在相关记录，检查err是否为空，不为空说明出现错误
-		utils.CatchErr("登录查询错误", err)
+		// 不存在相关记录，且err不为空，存在其他错误
+		utils.Log.Error("登录查询错误" + err.Error())
 	}
 	// 账号密码错误时id、state默认初始值为0
 	return id, state

@@ -39,7 +39,8 @@ func (*VideoDaoStruct) GetVideoFeed(lastTime int32) ([]VideoInfo, bool) {
 	var result []VideoInfo
 	// 内联查询
 	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.Time.Lt(lastTime), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Limit(10).Scan(&result)
-	if !utils.CatchErr("获取视频信息错误", err) {
+	if err != nil {
+		utils.Log.Error("获取视频信息错误" + err.Error())
 		return nil, false
 	}
 	if result == nil {
@@ -85,7 +86,8 @@ func (*VideoDaoStruct) GetVideoList(userID int32) ([]VideoInfo, bool) {
 	var result []VideoInfo
 	// 内联查询
 	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.AuthorID.Eq(userID), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Scan(&result)
-	if !utils.CatchErr("获取视频信息错误", err) {
+	if err != nil {
+		utils.Log.Error("获取视频信息错误" + err.Error())
 		return nil, false
 	}
 	if result == nil {
@@ -103,7 +105,8 @@ func (*VideoDaoStruct) PublishVideo(userID int, title string, videoNumID string)
 		Title:    title,
 	}
 	err := v.Create(&video)
-	if !utils.CatchErr("video插入数据错误", err) {
+	if err != nil {
+		utils.Log.Error("video插入数据错误" + err.Error())
 		return false
 	}
 	return true

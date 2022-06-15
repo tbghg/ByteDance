@@ -5,6 +5,7 @@ import (
 	relationController "ByteDance/cmd/follow/controller"
 	userController "ByteDance/cmd/user/controller"
 	videoController "ByteDance/cmd/video/controller"
+	"ByteDance/utils"
 
 	commentController "ByteDance/cmd/comment/controller"
 	"ByteDance/pkg/common"
@@ -46,12 +47,15 @@ func initRouter(r *gin.Engine) {
 			publish.GET("/list/", middleware.JwtMiddleware("query"), videoController.PublicList)
 		}
 		//comment路由组
-		comment := GRoute.Group("/comment").Use(middleware.JwtMiddleware("query"))
+		comment := GRoute.Group("/comment")
 		{
-			comment.POST("/action/", commentController.CommentAction)
+			comment.POST("/action/", middleware.JwtMiddleware("query"), commentController.CommentAction)
 			comment.GET("/list/", commentController.CommentList)
 		}
 	}
 	// 注册翻译器
-	_ = zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
+	err := zhs.RegisterDefaultTranslations(common.Validate, common.Trans)
+	if err != nil {
+		utils.Log.Error("翻译器注册错误")
+	}
 }
