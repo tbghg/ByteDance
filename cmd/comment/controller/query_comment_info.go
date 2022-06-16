@@ -5,6 +5,7 @@ import (
 	"ByteDance/cmd/comment/service"
 	"ByteDance/pkg/common"
 	"ByteDance/pkg/msg"
+	"ByteDance/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"net/http"
@@ -65,6 +66,12 @@ func CommentAction(c *gin.Context) {
 			c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.DataFormatErrorMsg}})
 			return
 		}
+	}
+	//敏感词检测
+	check := utils.SensitiveWordCheck(r.CommentText)
+	if check {
+		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.SensitiveWordErrorMsg}})
+		return
 	}
 	success := service.CommentAction(int32(UserId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
 
