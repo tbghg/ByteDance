@@ -57,7 +57,7 @@ func CommentAction(c *gin.Context) {
 
 	//获取token中的userid
 	value, _ := c.Get("user_id")
-	UserId, _ := value.(int)
+	userId, _ := value.(int)
 	// 使用common包中Validate验证器
 	err = common.Validate.Struct(r)
 	if err != nil {
@@ -68,12 +68,12 @@ func CommentAction(c *gin.Context) {
 		}
 	}
 	//敏感词检测
-	check := utils.SensitiveWordCheck(r.CommentText)
-	if check {
+	isContains := utils.SensitiveWordCheck(r.CommentText, userId)
+	if isContains {
 		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.SensitiveWordErrorMsg}})
 		return
 	}
-	success := service.CommentAction(int32(UserId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
+	success := service.CommentAction(int32(userId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
 
 	if !success {
 		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
