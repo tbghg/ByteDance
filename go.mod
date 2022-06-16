@@ -13,6 +13,7 @@ require (
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/syyongx/go-wordsfilter v0.0.0-20190622081656-74232c786041
 	go.uber.org/zap v1.13.0
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gen v0.3.4
@@ -36,7 +37,6 @@ require (
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.19.0 // indirect
 	github.com/stretchr/testify v1.7.1 // indirect
-	github.com/syyongx/go-wordsfilter v0.0.0-20190622081656-74232c786041 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	go.uber.org/atomic v1.6.0 // indirect
 	go.uber.org/multierr v1.5.0 // indirect
