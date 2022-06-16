@@ -40,7 +40,6 @@ ByteDance
 │  .gitignore
 │  ffmpeg.exe	// 截取视频第一帧
 │  go.mod
-│  go.sum
 │  Readme.md
 │  router.go	// 创建路由
 │  server.go	// 项目启动入口
@@ -48,75 +47,58 @@ ByteDance
 ├─cmd
 │  ├─user
 │  │  │  user_common_model.go	// user模块中共用的结构体
-│  │  │
-│  │  ├─controller	// 控制层，接受参数，编写流程逻辑，返回信息
+│  │  ├─controller		// 控制层，接受参数，编写流程逻辑，返回信息
 │  │  │      query_user_info.go
-│  │  │
-│  │  ├─repository	// 负责与数据库的交互
+│  │  ├─repository		// 负责与数据库的交互
 │  │  │      user.go
-│  │  │
-│  │  └─service		// 处理流程中的主要函数
+│  │  └─service			// 处理流程中的主要函数
 │  │          query_user_info.go
-│  ├─comment	// 其他模块与user模块结构相同
+│  ├─comment		// 其他模块与user模块结构相同
 │  ├─favorite
 │  ├─follow
 │  └─video
-│
-├─dal
-│  │  dal.go	// 初始化，将ConnQuery与数据库绑定
-│  │
-│  ├─method		// 自定义查询方法，用Gen生成
-│  │      method.go
-│  │
+├─dal		// MySQL、Redis初始化
+│  │  dal.go
+│  ├─method
+│  │      dal_common_method.go	// 共用的查询方法
+│  │      method.go		// 自定义查询方法，用Gen生成
 │  ├─model		// Gen生成的数据模型
-│  │      comment.gen.go
-│  │      favorite.gen.go
-│  │      follow.gen.go
-│  │      user.gen.go
-│  │      video.gen.go
-│  │
 │  └─query		// Gen生成的数据库操作方法
-│          comment.gen.go
-│          favorite.gen.go
-│          follow.gen.go
-│          gen.go
-│          user.gen.go
-│          video.gen.go
-│
-├─logs		// 日志存放
-├─pkg		
+├─logs		// 日志存放位置
+├─pkg
 │  ├─common
 │  │      common.go		// 模块公用部分
-│  │      config.go		// 配置项
+│  │      config.go		    // 配置项
 │  │
-│  ├─middleware			// 中间件
+│  ├─middleware		 // 中间件
 │  │      middleware.go
 │  │
-│  └─msg
-│          msg.go		// 定义返回消息
+│  └─msg	// 定义返回消息
+│          msg.go
 │
-└─utils		// 工具类
-    │  catchErr.go		// 捕捉错误
-    │  jwt.go			// 生成Token令牌
-    │  md5.go			// md5加密
-    │  snowflake.go		// 雪花算法
-    │  upload_file.go	// OSS中上传文件
-    │
+└─utils		 // 工具类
+    │  jwt.go				// 生成Token令牌
+    │  log.go				// 日志生成
+    │  password.go			// MD5加密，检测密码强度
+    │  SensitiveWords.txt	     // 项目 
+    │  sensitive_word.go
+    │  snowflake.go			// 雪花算法
+    │  upload_file.go		  // OSS中上传文件
     └─generate
-            generate.go	// Gen生成模块与方法
+            generate.go		      // Gen生成模块与方法
 ```
 
 
 
 ## 成员分工
 
-| **成员** |                           **分工**                           |
-| :------: | :----------------------------------------------------------: |
-|  田冰航  | 数据库设计，项目结构设计，用户注册功能，获取视频流功能，上传视频功能，查看已发布视频功能 |
-|  向政昌  | Validate数据验证，实现redis中间件限制频率，评论功能， 点赞功能你，相关功能文档撰写 |
-|  徐洪湘  | JWT令牌功能实现，数据库设计，项目结构设计，关注功能，相关功能文档攥写 |
-|  王智轶  |                获取用户信息，相关功能文档撰写                |
-|  张建行  |                用户登录功能，相关功能文档撰写                |
+| **成员** |                       **分工**                       |
+| :------: |:--------------------------------------------------:|
+|  田冰航  |    数据库设计，项目结构设计，用户注册功能，获取视频流功能，上传视频功能，查看已发布视频功能    |
+|  向政昌  | Validate数据验证，敏感词过滤，redis中间件限制频率，评论功能，点赞功能，相关功能文档撰写 |
+|  徐洪湘  |        JWT令牌功能实现，数据库设计，项目结构设计，关注功能，相关功能文档攥写        |
+|  王智轶  |                  获取用户信息，相关功能文档撰写                   |
+|  张建行  |                  用户登录功能，相关功能文档撰写                   |
 
 ## 后记
 
