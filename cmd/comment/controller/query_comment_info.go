@@ -14,6 +14,7 @@ import (
 // CommentActionResponse 评论操作返回
 type CommentActionResponse struct {
 	common.Response
+	Comment comment.TheCommentInfo `json:"comment"`
 }
 
 // CommentListResponse 评列表返回
@@ -73,15 +74,14 @@ func CommentAction(c *gin.Context) {
 		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.SensitiveWordErrorMsg}})
 		return
 	}
-	success := service.CommentAction(int32(userId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
-
-	if !success {
-		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: -1, StatusMsg: msg.CommentFailedMsg}})
-		return
-	}
+	commentInfo, _ := service.CommentAction(int32(userId), int32(r.VideoId), r.CommentText, int32(r.CommentId))
 
 	if r.ActionType == 1 {
-		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.CommentSuccessMsg}})
+		c.JSON(http.StatusOK, CommentActionResponse{
+			Response: common.Response{
+				StatusCode: 0,
+				StatusMsg:  msg.CommentSuccessMsg},
+			Comment: commentInfo})
 	} else {
 		c.JSON(http.StatusOK, CommentActionResponse{Response: common.Response{StatusCode: 0, StatusMsg: msg.UnCommentSuccessMsg}})
 	}

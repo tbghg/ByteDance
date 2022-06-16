@@ -49,17 +49,21 @@ func (*CommentStruct) CommentUpdate(commentId int32) (RowsAffected int64) {
 }
 
 // CommentCreate 评论操作
-func (*CommentStruct) CommentCreate(userId int32, videoId int32, commentText string) bool {
+func (*CommentStruct) CommentCreate(userId int32, videoId int32, commentText string) (CommentInfo, bool) {
 	c := dal.ConnQuery.Comment
+	u := dal.ConnQuery.User
 
 	comment := &model.Comment{UserID: userId, VideoID: videoId, Content: commentText}
-
+	var result CommentInfo
 	err := c.Create(comment)
 	if err != nil {
 		utils.Log.Error("插入评论表错误" + err.Error())
-		return false
+		return result, false
 	}
-	return true
+
+	// 内联查询
+	_ = c.Select(c.ID, c.UserID, u.Username, c.Content, c.CreateTime.As("CreateDate")).Where(c.UserID.Eq(userId), c.VideoID.Eq(videoId), c.Content.Eq(commentText), c.Removed.Eq(0), c.Deleted.Eq(0)).Join(u, u.ID.EqCol(c.UserID)).Order(c.ID.Desc()).Scan(&result)
+	return result, true
 }
 
 // CommentList 评论列表
