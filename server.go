@@ -10,7 +10,7 @@ import (
 
 func main() {
 	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3)
 	configInit(wg)
 
 	r := gin.Default()
@@ -35,6 +35,10 @@ func configInit(wg *sync.WaitGroup) {
 	}()
 	go func() {
 		dal.MySQLInit() // MySQL初始化，连接数据库
+		wg.Done()
+	}()
+	go func() {
+		utils.SensitiveWordInit() // 读取敏感词，写入内存中
 		wg.Done()
 	}()
 }
