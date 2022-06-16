@@ -23,3 +23,6 @@ const (
 
 // OSSPreURL OSS前缀
 const OSSPreURL = "https://byte-dance-01.oss-accelerate.aliyuncs.com/video/"
+
+// SensitiveWordsPath 敏感词路径
+const SensitiveWordsPath = "./utils/SensitiveWords.txt"
