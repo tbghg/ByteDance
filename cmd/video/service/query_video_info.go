@@ -65,34 +65,24 @@ func PublishVideo(userID int, title string, fileBytes []byte) (success bool) {
 	fileID := fmt.Sprintf("%v", randomId)
 	success = true
 
-	wg := &sync.WaitGroup{}
-	wg.Add(2)
+	if !utils.UploadFile(fileBytes, fileID, "video") {
+		success = false
+	}
 
-	go func(success *bool) {
-		if !utils.UploadFile(fileBytes, fileID, "video") {
-			*success = false
-		}
-		wg.Done()
-	}(&success)
-
-	go func(success *bool) {
-		// 通过ffmpeg截取视频第一帧为视频封面
-		videoURL := common.OSSPreURL + fileID + ".mp4"
-		cmd := exec.Command("ffmpeg", "-i", videoURL, "-vframes", "1", "-f", "singlejpeg", "-")
-		buf := new(bytes.Buffer)
-		cmd.Stdout = buf
-		err := cmd.Run()
-		if err != nil {
-			utils.Log.Error("ffmpeg运行错误" + err.Error())
-			*success = false
-		}
-		// 将视频封面上传至OSS中
-		if !utils.UploadFile(buf.Bytes(), fileID, "picture") {
-			*success = false
-		}
-		wg.Done()
-	}(&success)
-	wg.Wait()
+	// 通过ffmpeg截取视频第一帧为视频封面
+	videoURL := common.OSSPreURL + fileID + ".mp4"
+	cmd := exec.Command("ffmpeg", "-i", videoURL, "-vframes", "1", "-f", "singlejpeg", "-")
+	buf := new(bytes.Buffer)
+	cmd.Stdout = buf
+	err := cmd.Run()
+	if err != nil {
+		utils.Log.Error("ffmpeg运行错误 " + err.Error())
+		success = false
+	}
+	// 将视频封面上传至OSS中
+	if !utils.UploadFile(buf.Bytes(), fileID, "picture") {
+		success = false
+	}
 	if success {
 		if repository.VideoDao.PublishVideo(userID, title, fileID) {
 			return true
