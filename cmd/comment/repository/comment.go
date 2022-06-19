@@ -34,12 +34,12 @@ func init() {
 }
 
 // CommentUpdate 取消评论
-func (*CommentStruct) CommentUpdate(commentId int32) (RowsAffected int64) {
+func (*CommentStruct) CommentUpdate(commentId int32, userId int32) (RowsAffected int64) {
 	c := dal.ConnQuery.Comment
 
 	comment := &model.Comment{ID: commentId}
 
-	row, err := c.Where(c.ID.Eq(comment.ID)).Update(c.Removed, 1)
+	row, err := c.Where(c.ID.Eq(comment.ID), c.UserID.Eq(userId), c.Removed.Eq((0))).Update(c.Removed, 1)
 
 	if err != nil {
 		utils.Log.Error("评论更新错误" + err.Error())

@@ -11,7 +11,7 @@ import (
 
 func CommentAction(userId int32, videoId int32, commentText string, commentId int32) (commentInfo comment.TheCommentInfo, success bool) {
 	//更新 如果数据库没有该数据则返回IsExist = 0
-	IsExist := repository.CommentDao.CommentUpdate(commentId)
+	IsExist := repository.CommentDao.CommentUpdate(commentId, userId)
 
 	//commentText不空，创建评论
 	if IsExist == 0 && len(commentText) != 0 {
