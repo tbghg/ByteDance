@@ -57,10 +57,13 @@ func FavoriteAction(c *gin.Context) {
 		}
 	}
 
-	success = repository.FavoriteDao.FavoriteAction(int32(userID), int32(r.VideoId), r.ActionType)
+	state := repository.FavoriteDao.FavoriteAction(int32(userID), int32(r.VideoId), r.ActionType)
 
-	if !success {
+	if state == -1 {
 		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.FavoriteFailedMsg})
+		return
+	} else if state == 0 {
+		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.FollowSelf})
 		return
 	}
 	if r.ActionType == 1 {

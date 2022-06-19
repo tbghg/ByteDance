@@ -57,6 +57,7 @@ const (
 	UnFavoriteSuccessMsg          = "取消点赞成功"
 	GetFavoriteUserListSuccessMsg = "获取用户点赞列表成功"
 	FavoriteFailedMsg             = "操作失败"
+	FollowSelf                    = "不能关注自己"
 )
 
 //Comment

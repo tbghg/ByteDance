@@ -24,13 +24,18 @@ func init() {
 }
 
 // FavoriteAction 更新点赞操作
-func (*FavoriteStruct) FavoriteAction(userId int32, videoId int32, actionType int32) (success bool) {
+func (*FavoriteStruct) FavoriteAction(userId int32, videoId int32, actionType int32) (state int) {
 	f := dal.ConnQuery.Favorite
+	v := dal.ConnQuery.Video
 	var removed int32
 	if actionType == 1 {
 		removed = -1
 	} else {
 		removed = 1
+	}
+	number, _ := v.Where(v.ID.Eq(videoId), f.Deleted.Eq(0)).Count()
+	if number == 0 {
+		state = 0
 	}
 
 	count, _ := f.Where(f.UserID.Eq(userId), f.VideoID.Eq(videoId), f.Deleted.Eq(0)).Count()
@@ -41,16 +46,16 @@ func (*FavoriteStruct) FavoriteAction(userId int32, videoId int32, actionType in
 		err := f.Create(favorite)
 		if err != nil {
 			utils.Log.Error("添加favorite错误" + err.Error())
-			return false
+			return -1
 		}
 	} else {
 		_, err := f.Where(f.UserID.Eq(userId), f.VideoID.Eq(videoId), f.Deleted.Eq(0)).Update(f.Removed, removed)
 		if err != nil {
 			utils.Log.Error("更新favorite错误" + err.Error())
-			return false
+			return -1
 		}
 	}
-	return true
+	return 1
 }
 
 // FavoriteList 点赞列表
