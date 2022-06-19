@@ -85,7 +85,7 @@ func (*VideoDaoStruct) GetVideoList(userID int32) ([]VideoInfo, bool) {
 	u := dal.ConnQuery.User
 	var result []VideoInfo
 	// 内联查询
-	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.AuthorID.Eq(userID), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time).Scan(&result)
+	err := v.Select(u.ID.As("UserID"), u.Username, v.ID.As("VideoID"), v.PlayURL, v.CoverURL, v.Time, v.Title).Where(v.AuthorID.Eq(userID), v.Removed.Eq(0), v.Deleted.Eq(0)).Join(u, u.ID.EqCol(v.AuthorID)).Order(v.Time.Desc()).Scan(&result)
 	if err != nil {
 		utils.Log.Error("获取视频信息错误" + err.Error())
 		return nil, false
