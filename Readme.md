@@ -1,5 +1,7 @@
 # 青训营抖音项目文档
 
+技术相关及功能实现请移步汇报文档：[极简版抖音项目汇报文档（打工魂小组）](https://yvrcskowz5.feishu.cn/docs/doccnJpAemQe5YEr9TmIxL2JCXb#)
+
 ## 项目说明
 
 ### 实现功能
@@ -20,7 +22,7 @@
 
 ### 项目使用
 
-1. 已将数据库部署于服务器上，也可根据[表设计](https://yvrcskowz5.feishu.cn/docs/doccnJpAemQe5YEr9TmIxL2JCXb#表设计)模块中给出的建表语句在本地创建数据库
+1. 已将数据库部署于服务器上，若想替换为本地数据库请按照技术文档中表设计模块中进行替换，并修改`./pkg/common/config.go`中的`MySqlDSN`
 2. 启动`Redis`（非必须）
 3. 在`ByteDance/pkg/common/config.go`中填写相应配置项（也可使用当前默认配置）
 4. 安装依赖。在`ByteDance`目录下运行`go mod tidy`
@@ -97,9 +99,3 @@ ByteDance
 |  田冰航  |    数据库设计，项目结构设计，用户注册功能，获取视频流功能，上传视频功能，查看已发布视频功能    |
 |  向政昌  | Validate数据验证，敏感词过滤，redis中间件限制频率，评论功能，点赞功能，相关功能文档撰写 |
 |  徐洪湘  |        JWT令牌功能实现，数据库设计，项目结构设计，关注功能，相关功能文档攥写        |
-|  王智轶  |                  获取用户信息，相关功能文档撰写                   |
-|  张建行  |                  用户登录功能，相关功能文档撰写                   |
-
-## 后记
-
-技术相关及功能实现请移步汇报文档：[极简版抖音项目汇报文档（打工魂小组）](https://yvrcskowz5.feishu.cn/docs/doccnJpAemQe5YEr9TmIxL2JCXb#)
