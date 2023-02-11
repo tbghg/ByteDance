@@ -31,14 +31,14 @@ func configInit(wg *sync.WaitGroup) {
 	utils.LogConfig() // 初始化日志配置
 	go func() {
 		utils.OSSInit() // OSS初始化，将ConnQuery与数据库绑定
-		wg.Done()
+		defer wg.Done()
 	}()
 	go func() {
 		dal.MySQLInit() // MySQL初始化，连接数据库
-		wg.Done()
+		defer wg.Done()
 	}()
 	go func() {
 		utils.SensitiveWordInit() // 读取敏感词，写入内存中
-		wg.Done()
+		defer wg.Done()
 	}()
 }

@@ -90,7 +90,6 @@ func RateMiddleware(c *gin.Context) {
 	if val > 100 {
 		c.Abort()
 		c.JSON(http.StatusOK, common.Response{StatusCode: -1, StatusMsg: msg.RequestTooFastErrorMsg})
-		return
 	} else {
 		c.Next()
 	}
