@@ -1,0 +1,27 @@
+version: '3'
+services:
+  web:
+    expose:
+      - "8000:8000"
+    build:
+      context: ./
+      dockerfile: ./deployment/web/Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql_a
+      - redis_a
+  redis_a:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    restart: always
+  mysql_a:
+    image: "mysql:latest"
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: byte_dance           #mysql启动后会默认创建一个docker的database
+      MYSQL_ROOT_HOST: '%'         #代表任何机器都可以连接当前数据库

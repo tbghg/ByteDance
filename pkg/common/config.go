@@ -2,11 +2,11 @@ package common
 
 import "time"
 
-const MySqlDSN = "byte_dance:7efftEaAtzjEwfT4@tcp(106.15.107.229:3306)/byte_dance?charset=utf8mb4&parseTime=True&loc=Local"
+const MySqlDSN = "root:123456@tcp(mysql_a:3306)/byte_dance?charset=utf8mb4"
 
 // Redis 配置
 const (
-	RedisLocalhost = "localhost:6379"
+	RedisLocalhost = "redis_a:6379"
 	RedisPassword  = ""
 	RedisDB        = 0
 )
