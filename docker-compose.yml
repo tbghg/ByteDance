@@ -1,27 +1,32 @@
-version: '3'
-services:
-  web:
-    expose:
-      - "8000:8000"
-    build:
+version: "3.9" # 使用3.9版本的docker-compose文件格式
+services: # 定义服务
+  web: # web服务
+    build: # 使用当前目录下的deployment/web/Dockerfile来构建web镜像
       context: ./
       dockerfile: ./deployment/web/Dockerfile
-    ports:
-      - "5000:5000"
-    depends_on:
-      - mysql_a
-      - redis_a
-  redis_a:
-    image: "redis:alpine"
-    ports:
+    ports: # 映射端口
+      - "8000:8000"
+    depends_on: # 定义web服务依赖的其他服务
+      mysql_a: # web服务依赖mysql服务
+        condition: service_healthy # web服务只有在mysql服务的healthcheck状态为healthy时才启动
+      redis_a: # web服务依赖redis服务
+        condition: service_started # web服务只有在redis服务启动后才启动
+  redis_a: # redis服务
+    image: "redis:alpine" # 使用redis:alpine镜像
+    ports: # 映射端口
       - "6379:6379"
-    restart: always
-  mysql_a:
-    image: "mysql:latest"
-    ports:
+    restart: always # 总是重启
+  mysql_a: # mysql服务
+    image: "mysql:latest" # 使用mysql:latest镜像
+    ports: # 映射端口
       - "3306:3306"
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: byte_dance           #mysql启动后会默认创建一个docker的database
-      MYSQL_ROOT_HOST: '%'         #代表任何机器都可以连接当前数据库
+    restart: always # 总是重启
+    environment: # 定义环境变量
+      - MYSQL_ROOT_PASSWORD=123456 # 设置mysql的root密码为123456
+      - MYSQL_DATABASE=byte_dance # 设置mysql启动后会默认创建一个byte_dance的database
+      - MYSQL_ROOT_HOST=% # 设置任何机器都可以连接当前数据库
+    healthcheck: # 定义mysql服务的健康检查
+      test: [ "CMD", "mysql", "--user=root", "--password=123456", "--execute", "SHOW DATABASES;" ] # 使用mysql命令来检查数据库是否可用
+      interval: 10s # 每10秒执行一次检查
+      timeout: 5s # 检查超时时间为5秒
+      retries: 3 # 检查失败后重试3次
